@@ -173,6 +173,60 @@ class System{
     }
 };
 
+class System_3{
+    Vec _pos[3];
+    Vec _vel[3];
+    double _mass[3];
+
+    public:
+    System_3(Vec pos[], Vec vel[], double mass[]){
+        for (int i = 0; i < 3; i++){
+        _pos[i] = pos[i];
+        _vel[i] = vel[i];
+        _mass[i] = mass[i];
+        }
+    }
+
+    Vec[] pos() const { return _pos; }
+    Vec[] vel() const { return _vel; }
+
+    System& operator*=(double s) {
+        _pos1 *= s;
+        _pos2 *= s;
+        _vel1 *= s;
+        _vel2 *= s;
+        return *this;
+    }
+
+    System& operator/=(double s) {
+        _pos1 /= s;
+        _pos2 /= s;
+        _vel1 /= s;
+        _vel2 /= s;
+        return *this;
+    }
+
+    System& operator+=(System b) {
+        _pos1 += b.pos1();
+        _pos2 += b.pos2();
+        _vel1 += b.vel1();
+        _vel2 += b.vel2();
+        return *this;
+    }
+
+    System evaluate_g(){
+        Vec g1 = (-_m2*CONSTANT_G/(_pos1-_pos2).norm3()) * (_pos1-_pos2);
+        Vec g2 = (-_m1*CONSTANT_G/(_pos2-_pos1).norm3()) * (_pos2-_pos1);
+        return System(_vel1, _vel2, g1, g2, _m1, _m2);
+    }
+
+    double get_energy(){
+        double E_kin = (0.5*_m1)*_vel1.norm2() + (0.5*_m2)*_vel2.norm2();
+        double E_pot = -0.5*CONSTANT_G*_m1*_m2/((_pos1-_pos2).norm());
+        return E_kin + E_pot;
+    }
+};
+
 System operator*(System a, double s) { return a *= s; }
 System operator/(System a, double s) { return a /= s; }
 System operator+(System a, System b) { return a += b; }
