@@ -1,7 +1,5 @@
 #define CONSTANT_G 1 //6.6743e-11
 
-// #include "classes.h"
-
 // represents a 3-D vector
 class Vec {
     double _x;
@@ -117,7 +115,6 @@ class Body{
 
 // Vec operator+(Body a, Body b) { return a += b; }
 
-// System moet class over array van N bodies worden
 class System{
     Vec _pos1;
     Vec _pos2;
@@ -178,63 +175,86 @@ class System{
     }
 };
 
-class System_3{
-    Vec _pos[3];
-    Vec _vel[3];
-    double _mass[3];
-
-    public:
-    System_3(Vec pos[], Vec vel[], double mass[]){
-        for (int i = 0; i < 3; i++){
-        _pos[i] = pos[i];
-        _vel[i] = vel[i];
-        _mass[i] = mass[i];
-        }
-    }
-
-    Vec[] pos() const { return _pos; }
-    Vec[] vel() const { return _vel; }
-
-    System& operator*=(double s) {
-        _pos1 *= s;
-        _pos2 *= s;
-        _vel1 *= s;
-        _vel2 *= s;
-        return *this;
-    }
-
-    System& operator/=(double s) {
-        _pos1 /= s;
-        _pos2 /= s;
-        _vel1 /= s;
-        _vel2 /= s;
-        return *this;
-    }
-
-    System& operator+=(System b) {
-        _pos1 += b.pos1();
-        _pos2 += b.pos2();
-        _vel1 += b.vel1();
-        _vel2 += b.vel2();
-        return *this;
-    }
-
-    System evaluate_g(){
-        Vec g1 = (-_m2*CONSTANT_G/(_pos1-_pos2).norm3()) * (_pos1-_pos2);
-        Vec g2 = (-_m1*CONSTANT_G/(_pos2-_pos1).norm3()) * (_pos2-_pos1);
-        return System(_vel1, _vel2, g1, g2, _m1, _m2);
-    }
-
-    double get_energy(){
-        double E_kin = (0.5*_m1)*_vel1.norm2() + (0.5*_m2)*_vel2.norm2();
-        double E_pot = -0.5*CONSTANT_G*_m1*_m2/((_pos1-_pos2).norm());
-        return E_kin + E_pot;
-    }
-};
-
 System operator*(System a, double s) { return a *= s; }
 System operator/(System a, double s) { return a /= s; }
 System operator+(System a, System b) { return a += b; }
+
+
+class NSystem {
+
+private:
+    std::vector<Vec> _positions;
+    std::vector<Vec> _velocities;
+    std::vector<double> _masses;
+
+public:
+    NSystem(std::vector<Vec> positions, std::vector<Vec> velocities, std::vector<double> masses){
+    _positions = positions;
+    _velocities = velocities;
+    _masses = masses;
+    }
+
+    std::vector<Vec> positions() const { return _positions; }
+    std::vector<Vec> velocities() const { return _velocities; }
+    std::vector<double> masses() const { return _masses; }
+
+    NSystem& operator*=(double s) {
+        for (size_t i=0; i!=_positions.size(); ++i) {
+            _positions[i] *= s;
+            _velocities[i] *= s;
+            }
+        return *this;
+    }
+
+    NSystem& operator/=(double s) {
+        for (size_t i=0; i!=_positions.size(); ++i) {
+            _positions[i] /= s;
+            _velocities[i] /= s;
+            }
+        return *this;
+    }
+
+    NSystem& operator+=(NSystem b) {
+        for (size_t i=0; i!=_positions.size(); ++i) {
+            _positions[i] += b.positions()[i];
+            _velocities[i] += b.velocities()[i];
+            }
+        return *this;
+    }
+
+    NSystem evaluate_g(){
+        std::vector<Vec> gs;
+        for (size_t i=0; i!=_positions.size(); ++i) {
+            Vec g = Vec(0, 0, 0);
+            for (size_t j=0; j!=_positions.size(); ++j) {
+                if (i != j) {
+                    g += (-_masses[j]*CONSTANT_G/(_positions[i]-_positions[j]).norm3()) * (_positions[i]-_positions[j]);
+                }
+            }
+            gs.push_back(g);
+        }
+        return NSystem(_velocities, gs, _masses);
+    }
+
+    double get_energy(){
+        double E_kin = 0;
+        double E_pot = 0;
+        for (size_t i=0; i!=_positions.size(); ++i) {
+            E_kin += (0.5*_masses[i])*_velocities[i].norm2();
+            for (size_t j=0; j!=_positions.size(); ++j) {
+                if (i != j) {
+                E_pot += -0.5*CONSTANT_G*_masses[i]*_masses[j]/((_positions[i]-_positions[j]).norm());
+                }
+            }
+        }
+        return E_kin + E_pot;
+    }
+
+};
+
+NSystem operator*(NSystem a, double s) { return a *= s; }
+NSystem operator/(NSystem a, double s) { return a /= s; }
+NSystem operator+(NSystem a, NSystem b) { return a += b; }
 
 System RK2_step(System y_n, double h){
     System k1 = y_n.evaluate_g() * h;
@@ -247,5 +267,13 @@ System RK4_step(System y_n, double h){
     System k2 = (y_n + k1*0.5).evaluate_g()*h;
     System k3 = (y_n + k2*0.5).evaluate_g()*h;
     System k4 = (y_n + k3).evaluate_g()*h;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+}
+
+NSystem RK4_step(NSystem y_n, double h){
+    NSystem k1 = y_n.evaluate_g() * h;
+    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k4 = (y_n + k3).evaluate_g()*h;
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
