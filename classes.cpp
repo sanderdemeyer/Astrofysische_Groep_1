@@ -23,24 +23,28 @@ class Vec {
     Vec& operator*=(double s) {
         _x *= s;
         _y *= s;
+        _z *= s;
         return *this;
     }
 
     Vec& operator/=(double s) {
         _x /= s;
         _y /= s;
+        _z /= s;
         return *this;
     }
 
     Vec& operator+=(Vec v) {
         _x += v._x;
         _y += v._y;
+        _z += v._z;
         return *this;
     }
 
     Vec& operator-=(Vec v) {
         _x -= v._x;
         _y -= v._y;
+        _z -= v._z;
         return *this;
     }
 };
@@ -80,7 +84,7 @@ class Body{
 
     double energy(double h){
         Vec posn = _pos + (h/2)*_vel;
-        return 0.5*pow(_vel.norm(),2) - _mass/posn.norm();
+        return 0.5*pow(_vel.norm(),2) - CONSTANT_G*_mass/posn.norm();
     }
 
     void initialize(double h){
@@ -113,6 +117,7 @@ class Body{
 
 // Vec operator+(Body a, Body b) { return a += b; }
 
+// System moet class over array van N bodies worden
 class System{
     Vec _pos1;
     Vec _pos2;
