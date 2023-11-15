@@ -1,4 +1,5 @@
 #define CONSTANT_G 1 //6.6743e-11
+#define THETA 1.35120719195966
 
 // represents a 3-D vector
 class Vec {
@@ -256,6 +257,21 @@ NSystem operator*(NSystem a, double s) { return a *= s; }
 NSystem operator/(NSystem a, double s) { return a /= s; }
 NSystem operator+(NSystem a, NSystem b) { return a += b; }
 
+
+std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> masses){
+    std::vector<Vec> gs;
+    for (size_t i=0; i!=positions.size(); ++i) {
+        Vec g = Vec(0, 0, 0);
+        for (size_t j=0; j!=positions.size(); ++j) {
+            if (i != j) {
+                g += (-CONSTANT_G*masses[j]/(positions[i]-positions[j]).norm3()) * (positions[i]-positions[j]);
+            }
+        }
+        gs.push_back(g);
+    }
+    return gs;
+}
+
 System RK2_step(System y_n, double h){
     System k1 = y_n.evaluate_g() * h;
     System k2 = (y_n + k1*0.5).evaluate_g()*h;
@@ -277,3 +293,22 @@ NSystem RK4_step(NSystem y_n, double h){
     NSystem k4 = (y_n + k3).evaluate_g()*h;
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
+
+/*
+NSystem Forest_Ruth(NSystem y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+
+    // x = x + THETA*h*v;
+
+    NSystem k1 = y_n.evaluate_g() * h;
+    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k4 = (y_n + k3).evaluate_g()*h;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+}
+*/
+
+// Vectors vs arrays
+
+// + en * operator overloaden op niveau van vectoren?
