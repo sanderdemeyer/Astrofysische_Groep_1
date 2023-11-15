@@ -13,22 +13,22 @@ int main(){
     std::cout << "Run Start" << std::endl;
     int time_start = time(NULL);
 
-    std::ofstream outfile("three_body_motion_RK2.txt");
+    std::ofstream outfile("three_body_motion_RK4.txt");
     outfile << std::setprecision(8);
-    std::ofstream outfile_energy("three_body_motion_energy_RK2.txt");
+    std::ofstream outfile_energy("three_body_motion_energy_RK4.txt");
     outfile_energy << std::setprecision(8);
 
-    double h = 0.01;
+    double h = 0.001;
     double m1 = 0.005;
     double m2 = 0.005;
     double m3 = 0.005;
 
-    Vec pos1 = Vec(-2.1, -1.0, 0);
-    Vec pos2 = Vec(1.1, -1.0, 0);
-    Vec pos3 = Vec(1.0, 3.1, 0);
-    Vec vel1 = Vec(0.00, 0.00, 0.0);
-    Vec vel2 = Vec(-0.00, 0.00, 0.0);
-    Vec vel3 = Vec(-0.00, -0.00, 0.0);
+    Vec pos1 = Vec(-1.0, 0.0, 0.0);
+    Vec pos2 = Vec(1.0, 0.0, 0.0);
+    Vec pos3 = Vec(0.0, 2.0, 0.0);
+    Vec vel1 = Vec(0.03, 0.03, 0.0);
+    Vec vel2 = Vec(-0.03, 0.02, 0.0);
+    Vec vel3 = Vec(-0.02, -0.02, 0.0);
 
     //System y = System(pos1, pos2, vel1, vel2, m1, m2);
 
@@ -48,12 +48,13 @@ int main(){
     */
     
     
-    for (int i = 0; i < 20000; i++){
+    for (int i = 0; i < 10000; i++){
 
-        z = RK4_step(z, h);
+        // z = RK4_step(z, h);
+        z = Forest_Ruth(z, h);
         outfile << i;
         for (int body_number = 0; body_number < 3; body_number++){
-            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y();
+            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z();
         }
         outfile << '\n';
         //outfile << i << ' ' << z.positions()[0].x() << ' ' << z.positions()[0].y()<< ' ' << z.positions()[1].x() << ' ' << z.positions()[1].y() << '\n';
