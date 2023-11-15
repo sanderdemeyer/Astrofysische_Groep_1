@@ -3,10 +3,18 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream> 
 #include <ctime>
 #include <vector>
 
 #include "classes.cpp"
+
+// --------------------TO DO--------------------
+// switches (maak de main, plot, ... generiek): 
+//      integrator -> wordt ook gebruikt in naam output (incl. banen, energies, runtime, ...)
+// Nieuwe integratoren (VEEEEL)
+// Niet alle timesteps plotten (overkill)
+// Variable timestep
 
 int main(){
     
@@ -19,45 +27,20 @@ int main(){
     outfile_energy << std::setprecision(8);
 
     double h = 0.001;
-    double m1 = 0.005;
-    double m2 = 0.005;
-    double m3 = 0.005;
 
-    Vec pos1 = Vec(-1.0, 0.0, 0.0);
-    Vec pos2 = Vec(1.0, 0.0, 0.0);
-    Vec pos3 = Vec(0.0, 2.0, 0.0);
-    Vec vel1 = Vec(0.03, 0.03, 0.0);
-    Vec vel2 = Vec(-0.03, 0.02, 0.0);
-    Vec vel3 = Vec(-0.02, -0.02, 0.0);
+    NSystem z = getvalues("initial_conditions.txt");
 
-    //System y = System(pos1, pos2, vel1, vel2, m1, m2);
+    for (int i = 0; i < 100000; i++){
 
-    std::vector<Vec> positions = {pos1, pos2, pos3};
-    std::vector<Vec> velocities = {vel1, vel2, vel3};
-    std::vector<double> masses = {m1, m2, m3};
-    NSystem z = NSystem(positions, velocities, masses);
+        z = RK4_step(z, h);
+        // z = Forest_Ruth(z, h);
 
-    /*
-    for (int i = 0; i < 20000; i++){
-
-        y = RK4_step(y, h);
-        outfile << i << ' ' << y.pos1().x() << ' ' << y.pos1().y()<< ' ' << y.pos2().x() << ' ' << y.pos2().y() << '\n';
-        outfile_energy << y.get_energy() << '\n';
-
-    }
-    */
-    
-    
-    for (int i = 0; i < 10000; i++){
-
-        // z = RK4_step(z, h);
-        z = Forest_Ruth(z, h);
         outfile << i;
         for (int body_number = 0; body_number < 3; body_number++){
             outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z();
         }
         outfile << '\n';
-        //outfile << i << ' ' << z.positions()[0].x() << ' ' << z.positions()[0].y()<< ' ' << z.positions()[1].x() << ' ' << z.positions()[1].y() << '\n';
+        
         outfile_energy << z.get_energy() << '\n';
 
     }

@@ -58,6 +58,7 @@ void print(Vec a){
     std::cout << "(" << a.x() << ", " << a.y() << ", " << a.z() << ")" << std::endl; 
 }
 
+// mag weg?
 class Body{
     Vec _pos;
     Vec _vel;
@@ -115,7 +116,7 @@ class Body{
 };
 
 // Vec operator+(Body a, Body b) { return a += b; }
-
+// mag weg?
 class System{
     Vec _pos1;
     Vec _pos2;
@@ -270,7 +271,6 @@ NSystem operator*(NSystem a, double s) { return a *= s; }
 NSystem operator/(NSystem a, double s) { return a /= s; }
 NSystem operator+(NSystem a, NSystem b) { return a += b; }
 
-
 std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> masses){
     std::vector<Vec> gs;
     for (size_t i=0; i!=positions.size(); ++i) {
@@ -285,21 +285,6 @@ std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> mass
     return gs;
 }
 
-System RK2_step(System y_n, double h){
-    System k1 = y_n.evaluate_g() * h;
-    System k2 = (y_n + k1*0.5).evaluate_g()*h;
-    return y_n + k2;
-}
-
-System RK4_step(System y_n, double h){
-    System k1 = y_n.evaluate_g() * h;
-    System k2 = (y_n + k1*0.5).evaluate_g()*h;
-    System k3 = (y_n + k2*0.5).evaluate_g()*h;
-    System k4 = (y_n + k3).evaluate_g()*h;
-    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
-}
-
-
 NSystem RK4_step(NSystem y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
     NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
@@ -307,7 +292,6 @@ NSystem RK4_step(NSystem y_n, double h){
     NSystem k4 = (y_n + k3).evaluate_g()*h;
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
-
 
 NSystem Forest_Ruth(NSystem y_n, double h){
     std::vector<Vec> x = y_n.positions();
@@ -328,3 +312,34 @@ NSystem Forest_Ruth(NSystem y_n, double h){
 // Vectors vs arrays
 
 // + en * operator overloaden op niveau van vectoren?
+
+NSystem getvalues(std::string inputfile) {
+    std::ifstream MyreadFile(inputfile);
+
+    std::vector<Vec> ini_positions;
+    std::vector<Vec> ini_velocities;
+    std::vector<double> masses;
+
+    for (std::string line; getline(MyreadFile, line);) {
+        std::istringstream iss(line);
+
+        double mass;
+        iss >> mass;
+        masses.push_back(mass);
+
+        double x, y, z;
+        iss >> x >> y >> z;
+        Vec r_i(x, y, z);
+        ini_positions.push_back(r_i);
+
+        double v_x, v_y, v_z;
+        iss >> v_x >> v_y >> v_z;
+        Vec v_i(v_x, v_y, v_z);
+        ini_velocities.push_back(v_i);
+    }
+
+    MyreadFile.close();
+    return NSystem(ini_positions, ini_velocities, masses);
+}
+
+
