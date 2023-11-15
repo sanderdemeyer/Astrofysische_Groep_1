@@ -180,6 +180,19 @@ System operator*(System a, double s) { return a *= s; }
 System operator/(System a, double s) { return a /= s; }
 System operator+(System a, System b) { return a += b; }
 
+std::vector<Vec> operator*(double s, std::vector<Vec> a){
+    for (size_t i=0; i!=a.size(); ++i) {
+        a[i] *= s;
+    }
+    return a;
+}
+
+std::vector<Vec> operator+(std::vector<Vec> a, std::vector<Vec> b){
+    for (size_t i=0; i!=a.size(); ++i) {
+        a[i] += b[i];
+    }
+    return a;
+}
 
 class NSystem {
 
@@ -238,8 +251,8 @@ public:
     }
 
     double get_energy(){
-        double E_kin = 0;
-        double E_pot = 0;
+        double E_kin = 0.0;
+        double E_pot = 0.0;
         for (size_t i=0; i!=_positions.size(); ++i) {
             E_kin += (0.5*_masses[i])*_velocities[i].norm2();
             for (size_t j=0; j!=_positions.size(); ++j) {
@@ -286,6 +299,7 @@ System RK4_step(System y_n, double h){
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
 
+
 NSystem RK4_step(NSystem y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
     NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
@@ -294,20 +308,22 @@ NSystem RK4_step(NSystem y_n, double h){
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
 
-/*
+
 NSystem Forest_Ruth(NSystem y_n, double h){
     std::vector<Vec> x = y_n.positions();
     std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
 
-    // x = x + THETA*h*v;
+    x = x + (THETA*h/2)*v;
+    v = v + THETA*h*evaluate_a(x, masses);
+    x = x + ((1-THETA)*h/2)*v;
+    v = v + ((1-2*THETA)*h)*evaluate_a(x, masses);
+    x = x + ((1-THETA)*h/2)*v;
+    v = v + THETA*h*evaluate_a(x, masses);
+    x = x + (THETA*h/2)*v;
 
-    NSystem k1 = y_n.evaluate_g() * h;
-    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
-    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
-    NSystem k4 = (y_n + k3).evaluate_g()*h;
-    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+    return NSystem(x, v, masses);
 }
-*/
 
 // Vectors vs arrays
 
