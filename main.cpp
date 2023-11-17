@@ -30,10 +30,10 @@ int main(){
 
     NSystem z = getvalues("initial_conditions.txt");
 
-    for (int i = 0; i < 100000; i++){
+    for (int i = 0; i < 30000; i++){
 
-        z = RK4_step(z, h);
-        // z = Forest_Ruth(z, h);
+        //z = RK4_step(z, h);
+        z = Yoshida_4(z, h);
 
         outfile << i;
         for (int body_number = 0; body_number < 3; body_number++){
