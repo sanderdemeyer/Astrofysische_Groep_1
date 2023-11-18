@@ -26,13 +26,13 @@ int main(){
 
     // Each new integrator must be added to this map
     std::map<std::string, integ> functions ={
-        {"RK4", RK4_step},
-        {"Forest Ruth", Forest_Ruth_friend},
-        {"PEFRL", PEFRL_friend},
-        {"Velocity Verlet", Velocity_Verlet_friend},
-        {"Position Verlet", Position_Verlet_friend},
-        {"Leapfrog", Leapfrog_friend},
-        {"Yoshida_4", Yoshida_4_friend}
+        {"RK4", RK4_step_old},
+        {"Forest Ruth", Forest_Ruth},
+        {"PEFRL", PEFRL},
+        {"Velocity Verlet", Velocity_Verlet},
+        {"Position Verlet", Position_Verlet},
+        {"Leapfrog", Leapfrog},
+        {"Yoshida_4", Yoshida_4}
     };
 
     std::string in_cond;
@@ -67,7 +67,7 @@ int main(){
     outfile << std::setprecision(8);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
-            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z();
+            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z() << ' ';
         }
         outfile << '\n';
 
@@ -76,15 +76,14 @@ int main(){
     outfile_energy << std::setprecision(8);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
-    for (int i = 0; i < 30000; i++){
+    for (int i = 0; i <= iter; i++){
         t+= h;
         //z = RK4_step(z, h);
         z = functions[integrator](z, h);
 
         outfile << t;
         for (int body_number = 0; body_number < N; body_number++){
-            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z();
-            //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
+            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z() << ' ';
         }
         outfile << '\n';
         
