@@ -217,6 +217,7 @@ public:
     std::vector<Vec> positions() const { return _positions; }
     std::vector<Vec> velocities() const { return _velocities; }
     std::vector<double> masses() const { return _masses; }
+    int n() const { return _masses.size(); }
 
     NSystem& operator*=(double s) {
         for (size_t i=0; i!=_positions.size(); ++i) {
