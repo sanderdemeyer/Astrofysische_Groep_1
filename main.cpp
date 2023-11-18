@@ -76,17 +76,19 @@ int main(){
     outfile_energy << std::setprecision(8);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
+    double h = 0.001;
 
-    for (int i = 0; i <= iter; i++){
+    NSystem z = getvalues("initial_conditions.txt");
+
+    for (int i = 0; i < 30000; i++){
 
         //z = RK4_step(z, h);
-        z = functions[integrator](z,h);
+        z = Yoshida_4(z, h);
 
-        t+= h;
-
-        outfile << t;
+        outfile << i;
         for (int body_number = 0; body_number < 3; body_number++){
             outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z();
+            //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
         }
         outfile << '\n';
         
