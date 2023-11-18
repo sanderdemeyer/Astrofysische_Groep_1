@@ -16,6 +16,15 @@
 #include <vector>
 #include "classes.cpp"
 
+NSystem RK4_step_old(NSystem y_n, double h){
+    NSystem k1 = y_n.evaluate_g() * h;
+    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k4 = (y_n + k3).evaluate_g()*h;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+}
+
 NSystem Forest_Ruth(NSystem y_n, double h){
     std::vector<Vec> x = y_n.positions();
     std::vector<Vec> v = y_n.velocities();

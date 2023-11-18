@@ -35,11 +35,12 @@ int main(){
 
     int NoB = z.positions().size(); // NoB = Number of Bodies
 
-    for (int i = 0; i < 400000; i++){
+    for (int i = 0; i < 100000; i++){
 
         //z = RK4_step(z, h);
         //Yoshida_4_new(x, v, masses, h);
-        PEFRL_friend(z, h);
+        //PEFRL_friend(z, h);
+        RK4_step(z, h);
         //Yoshida_friend(z, h);
 
         outfile << i;
