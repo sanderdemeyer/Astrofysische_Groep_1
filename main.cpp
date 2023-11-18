@@ -25,7 +25,7 @@ typedef void (*integ) (NSystem&, double);
 int main(){
 
     // Each new integrator must be added to this map
-    std::map<std::string, integ> functions ={
+    std::unordered_map<std::string, integ> functions ={
         {"RK4", RK4_step},
         {"Forest Ruth", Forest_Ruth_friend},
         {"PEFRL", PEFRL_friend},
@@ -79,7 +79,7 @@ int main(){
     for (int i = 0; i <= iter; i++){
         t+= h;
         //z = RK4_step(z, h);
-        z = functions[integrator](z, h);
+        functions[integrator](z, h);
 
         outfile << t;
         for (int body_number = 0; body_number < N; body_number++){
