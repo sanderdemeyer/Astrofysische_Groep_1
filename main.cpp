@@ -20,19 +20,19 @@
 // Niet alle timesteps plotten (overkill)
 // Variable timestep
 
-typedef NSystem (*integ) (NSystem, double);
+typedef void (*integ) (NSystem&, double);
 
 int main(){
 
     // Each new integrator must be added to this map
     std::map<std::string, integ> functions ={
-        {"RK4", RK4_step_old},
-        {"Forest Ruth", Forest_Ruth},
-        {"PEFRL", PEFRL},
-        {"Velocity Verlet", Velocity_Verlet},
-        {"Position Verlet", Position_Verlet},
-        {"Leapfrog", Leapfrog},
-        {"Yoshida_4", Yoshida_4}
+        {"RK4", RK4_step},
+        {"Forest Ruth", Forest_Ruth_friend},
+        {"PEFRL", PEFRL_friend},
+        {"Velocity Verlet", Velocity_Verlet_friend},
+        {"Position Verlet", Position_Verlet_friend},
+        {"Leapfrog", Leapfrog_friend},
+        {"Yoshida_4", Yoshida_4_friend}
     };
 
     std::string in_cond;
