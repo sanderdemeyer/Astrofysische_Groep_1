@@ -1,3 +1,5 @@
+#include <cassert>
+
 #define CONSTANT_G 1 //6.6743e-11
 #define THETA 1.35120719195966
 #define XI_PEFRL 0.1786178958448091
@@ -23,6 +25,9 @@ class Vec {
     double norm() const {return sqrt(_x*_x + _y*_y + _z*_z);}
     double norm2() const {return _x*_x + _y*_y + _z*_z;}
     double norm3() const {return pow(_x*_x + _y*_y + _z*_z, 1.5);}
+
+    friend Vec transform_forward(Vec r);
+    friend Vec transform_backward(Vec r);
 
     Vec& operator*=(double s) {
         _x *= s;
@@ -58,6 +63,21 @@ Vec operator/(Vec a, double s) { return a /= s; }
 Vec operator*(double s, Vec a) { return a *= s; }
 Vec operator+(Vec a, Vec b) { return a += b; }
 Vec operator-(Vec a, Vec b) { return a -= b; }
+
+Vec transform_forward(Vec r){
+    double expr = r._x + r.norm();
+    double u1 = sqrt(expr/2);
+    double u2 = r._y/sqrt(2*expr);
+    double u3 = r._z/sqrt(2*expr);
+    return Vec(u1, u2, u3);
+}
+
+Vec transform_backward(Vec u){
+    double r1 = pow(u._x, 2) - pow(u._y, 2) - pow(u._z, 2);
+    double r2 = 2*u._x*u._y;
+    double r3 = 2*u._x*u._z;
+    return Vec(r1, r2, r3);
+}
 
 void print(Vec a){ 
     std::cout << "(" << a.x() << ", " << a.y() << ", " << a.z() << ")" << std::endl; 
@@ -230,6 +250,7 @@ public:
     friend void Leapfrog_friend(NSystem& y_n, double h);
     friend void Yoshida_4_friend(NSystem& y_n, double h);
 
+    friend void Leapfrog_regularized_friend(NSystem& y_n, double dtau);
 
     std::vector<Vec> positions() const { return _positions; }
     std::vector<Vec> velocities() const { return _velocities; }
@@ -287,6 +308,9 @@ public:
         }
         return E_kin + E_pot;
     }
+    double get_energy_regularized(){
+        return 0; // TO DO
+    }
 
 };
 
@@ -308,7 +332,6 @@ std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> mass
     return gs;
 }
 
-
 void RK4_step(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
     NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
@@ -316,7 +339,6 @@ void RK4_step(NSystem& y_n, double h){
     NSystem k4 = (y_n + k3).evaluate_g()*h;
     y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
-
 
 void Forest_Ruth_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + (THETA*h/2)*y_n._velocities;
@@ -327,7 +349,6 @@ void Forest_Ruth_friend(NSystem& y_n, double h){
     y_n._velocities = y_n._velocities + THETA*h*evaluate_a(y_n._positions, y_n._masses);
     y_n._positions = y_n._positions + (THETA*h/2)*y_n._velocities;
 }
-
 
 void PEFRL_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + XI_PEFRL*h*y_n._velocities;
@@ -347,7 +368,6 @@ void Velocity_Verlet_friend(NSystem& y_n, double h){
     y_n._velocities = y_n._velocities + (h/2)*evaluate_a(y_n._positions, y_n._masses);
 }
 
-
 void Position_Verlet_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + (h/2)*y_n._velocities;
     y_n._velocities = y_n._velocities + h*evaluate_a(y_n._positions, y_n._masses);
@@ -357,6 +377,13 @@ void Position_Verlet_friend(NSystem& y_n, double h){
 void Leapfrog_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + h*y_n._velocities;
     y_n._velocities = y_n._velocities + h*evaluate_a(y_n._positions, y_n._masses);
+}
+
+void Leapfrog_regularized_friend(NSystem& y_n, double dtau){
+    double E_first = y_n.get_energy_regularized();
+    y_n._positions = y_n._positions + dtau*y_n._velocities;
+    double E_second = y_n.get_energy_regularized();
+    y_n._velocities = y_n._velocities + (dtau/4)*(E_first+E_second)*y_n._positions;
 }
 
 
@@ -369,12 +396,6 @@ void Yoshida_4_friend(NSystem& y_n, double h){
     y_n._velocities = y_n._velocities + YOSHIDA_W1*h*evaluate_a(y_n._positions, y_n._masses);
     y_n._positions = y_n._positions + (YOSHIDA_W1/2)*h*y_n._velocities;
 }
-
-
-
-// Vectors vs arrays
-
-// + en * operator overloaden op niveau van vectoren?
 
 NSystem getvalues(std::string inputfile) {
     std::ifstream MyreadFile(inputfile);
@@ -403,6 +424,116 @@ NSystem getvalues(std::string inputfile) {
 
     MyreadFile.close();
     return NSystem(ini_positions, ini_velocities, masses);
+}
+
+class Regularized_coo {
+
+private:
+    Vec _u;
+    Vec _v;
+    double _mu;
+
+public: 
+    Regularized_coo(Vec u, Vec v, double mu){
+    _u = u;
+    _v = v;
+    _mu = mu;
+    }
+    Regularized_coo(){
+        _u = Vec(0.0, 0.0, 0.0);
+        _v = Vec(0.0, 0.0, 0.0);
+        _mu = 0;
+    }
+
+    double u_squared(){
+        return _u.norm2();
+    }
+};
+
+
+class NSystem_reg {
+
+private:
+    NSystem _nsystem;
+    bool _regularized;
+    Regularized_coo _reg_coo;
+    std::vector<double> _initial_masses;
+
+public:
+    NSystem_reg(NSystem nsystem, bool regularized, Regularized_coo reg_coo, std::vector<double> initial_masses)
+    : _nsystem(nsystem), _regularized(regularized), _reg_coo(reg_coo), _initial_masses(initial_masses) {}
+
+    NSystem nsystem() const { return _nsystem; }
+    bool regularized() const { return _regularized; }
+    Regularized_coo reg_coo() const { return _reg_coo; }
+    std::vector<double> initial_masses() const { return _initial_masses; }
+
+    friend void Leapfrog_reg(NSystem_reg& y_n, double dtau);
+
+    bool check_separation(double transform_distance){
+        // only works for two bodies for the moment
+        if (_regularized){
+            return (_reg_coo.u_squared() < transform_distance);
+        } else {
+            return ((_nsystem.positions()[0] - _nsystem.positions()[1]).norm() < transform_distance);
+        }
+    }
+
+    NSystem_reg transform_forward(int body1, int body2){
+        assert(body1 < body2);
+
+        std::vector<Vec> pos_new = _nsystem.positions();
+        std::vector<Vec> vel_new = _nsystem.velocities();
+        std::vector<double> masses_new = _nsystem.masses();
+
+        Vec relative_pos = Vec(pos_new[body2] - pos_new[body1]);
+        Vec com_pos = Vec((masses_new[body2]*pos_new[body2] + masses_new[body1]*pos_new[body1])/(masses_new[body1]+masses_new[body2]));
+
+        Vec relative_vel = Vec(vel_new[body2] - vel_new[body1]);
+        Vec com_vel = Vec((masses_new[body2]*vel_new[body2] + masses_new[body1]*vel_new[body1])/(masses_new[body1]+masses_new[body2]));
+
+        double joint_mass = masses_new[body2] + masses_new[body1];
+        double reduced_mass = 1/(1/masses_new[body2] + 1/masses_new[body1]);
+
+        std::vector<double> masses_old;
+        masses_old.push_back(masses_new[body1]);
+        masses_old.push_back(masses_new[body2]);
+
+        pos_new.erase(pos_new.begin() + body2);
+        vel_new.erase(vel_new.begin() + body2);
+        masses_new.erase(masses_new.begin() + body2);
+
+        pos_new.erase(pos_new.begin() + body1);
+        vel_new.erase(vel_new.begin() + body1);
+        masses_new.erase(masses_new.begin() + body1);
+
+        pos_new.push_back(com_pos);
+        vel_new.push_back(com_vel);
+        masses_new.push_back(joint_mass);
+
+        return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(relative_pos, relative_vel, reduced_mass), masses_old);
+    }
+
+    NSystem_reg transform_backward(){
+        std::vector<Vec> pos_new = _nsystem.positions();
+        std::vector<Vec> vel_new = _nsystem.velocities();
+        std::vector<double> masses_new = _nsystem.masses();
+
+        Vec R_under;
+        Vec R_prime;
+
+        double sum_masses = _initial_masses[1] + _initial_masses[0];
+        double diff_masses = _initial_masses[1] + _initial_masses[0];
+        Vec R1 = (sum_masses*R_under - _initial_masses[2]*R_prime)/diff_masses;
+    }
+};
+
+void Leapfrog_reg(NSystem_reg& y_n, double dtau){
+    if (y_n._regularized){
+        Leapfrog_friend(y_n._nsystem, dtau);
+    } else {
+        Leapfrog_friend(y_n._nsystem, dtau);
+    }
 }
 
 NSystem RK4_step_old(NSystem y_n, double h){

@@ -25,7 +25,7 @@ NSystem RK4_step_old(NSystem y_n, double h){
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
 
-NSystem Forest_Ruth(NSystem y_n, double h){
+NSystem Forest_Ruth_old(NSystem y_n, double h){
     std::vector<Vec> x = y_n.positions();
     std::vector<Vec> v = y_n.velocities();
     std::vector<double> masses = y_n.masses();
@@ -41,7 +41,7 @@ NSystem Forest_Ruth(NSystem y_n, double h){
     return NSystem(x, v, masses);
 }
 
-NSystem PEFRL(NSystem y_n, double h){
+NSystem PEFRL_old(NSystem y_n, double h){
     std::vector<Vec> x = y_n.positions();
     std::vector<Vec> v = y_n.velocities();
     std::vector<double> masses = y_n.masses();
