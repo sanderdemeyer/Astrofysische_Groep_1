@@ -313,6 +313,16 @@ NSystem RK4_step(NSystem y_n, double h){
     NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
     NSystem k4 = (y_n + k3).evaluate_g()*h;
     return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+}
+
+NSystem RK4_step_new(NSystem y_n, double h){
+    NSystem k1 = y_n.evaluate_g() * h;
+    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k4 = (y_n + k3).evaluate_g()*h;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
 
 

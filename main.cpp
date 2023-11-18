@@ -26,22 +26,24 @@ int main(){
     std::ofstream outfile_energy("three_body_motion_energy_RK4.txt");
     outfile_energy << std::setprecision(8);
 
-    double h = 0.001;
+    double h = 0.0003;
 
     NSystem z = getvalues("initial_conditions.txt");
     //std::vector<Vec> x = z.positions();
     //std::vector<Vec> v = z.velocities();
     //std::vector<double> masses = z.masses();
 
-    for (int i = 0; i < 100000; i++){
+    int NoB = z.positions().size(); // NoB = Number of Bodies
+
+    for (int i = 0; i < 400000; i++){
 
         //z = RK4_step(z, h);
         //Yoshida_4_new(x, v, masses, h);
-        z = Yoshida_4(z, h);
+        PEFRL_friend(z, h);
         //Yoshida_friend(z, h);
 
         outfile << i;
-        for (int body_number = 0; body_number < 3; body_number++){
+        for (int body_number = 0; body_number < NoB; body_number++){
             outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z();
             //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
         }
