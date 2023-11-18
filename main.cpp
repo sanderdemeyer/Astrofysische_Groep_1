@@ -41,6 +41,7 @@ int main(){
     double t = 0;
     int iter;
     
+    /*
     // Getting the inputs
     std::cout << "Run Start" << std::endl;
     // get the initial conditions file
@@ -55,7 +56,14 @@ int main(){
     // get the number of iterations
     std::cout << "Provide the number of iterations: ";
     std::cin >> iter;
+    */
 
+    h = 0.001;
+    iter = 40000;
+    integrator = "RK4";
+    in_cond = "initial_conditions.txt";
+
+   
     // start the execution
     int time_start = time(NULL);
 
@@ -79,7 +87,8 @@ int main(){
     for (int i = 0; i <= iter; i++){
         t+= h;
         //z = RK4_step(z, h);
-        z = functions[integrator](z, h);
+        //z = functions[integrator](z, h);
+        functions[integrator](z, h);
 
         outfile << t;
         for (int body_number = 0; body_number < N; body_number++){
