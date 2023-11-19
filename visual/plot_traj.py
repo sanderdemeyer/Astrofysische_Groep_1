@@ -180,13 +180,16 @@ print('This program animtes or plots the trajectories of the particles in an N-b
 integrator = input('Please provide the file:\n')
 type_plot = input('Would you like to animate or plot the trajectories:\n')
 dim = int(input('What is the dimension of the simulation:\n'))
-tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
 
 name = integrator.rstrip('.txt')
 if type_plot == 'animate':
+    tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     animate(integrator, dim, tstep, name= name)
+    
 elif type_plot == 'plot':
     plot(integrator, dim,name= name)
+    
 elif type_plot == 'both':
+    tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     animate(integrator, dim, tstep, name= name)
     plot(integrator, dim, name= name)
