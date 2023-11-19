@@ -9,10 +9,15 @@ De folder **`visual`** bevat de python bestanden gebruikt voor visualisatie. De 
 ### Input
 ```Provide the initial conditions:```  
 The filename should be provided. The txt file should have the given format:
-$$ m_1 \quad x_1 \quad y_1 \quad z_1 \quad v_1 \quad v_1 \quad v_1 \\
+
+$$
+\begin{gather*}
+m_1 \quad x_1 \quad y_1 \quad z_1 \quad v_1 \quad v_1 \quad v_1 \\
 m_2 \quad x_2 \quad y_2 \quad z_2 \quad v_2 \quad v_2 \quad v_2\\
 \vdots\\
-m_n \quad x_n \quad y_n \quad z_n \quad v_n \quad v_n \quad v_n $$
+m_n \quad x_n \quad y_n \quad z_n \quad v_n \quad v_n \quad v_n
+\end{gather*}
+$$
 
 
 ```Which integrator would you like to use:```  
