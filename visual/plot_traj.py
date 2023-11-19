@@ -43,7 +43,7 @@ def trajectories(file, dim):
             ind_traj[i][j]= part_traj[j]
     return t, ind_traj
 
-def animate(file, dim, tstep, name='animation', lim= None, dpi=300):
+def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and animates the trajectories of the particles.
     
@@ -56,6 +56,8 @@ def animate(file, dim, tstep, name='animation', lim= None, dpi=300):
         Dimension of the Nbody simulation, has to be 2 or 3
     tstep
         The timescale of the simulation, or in other words how much should one second of video be equal to the time used in simulation
+    line
+        Whether or not to plot the lines
     name
         Name of the animation file
     dpi
@@ -66,6 +68,7 @@ def animate(file, dim, tstep, name='animation', lim= None, dpi=300):
     Creates an mkv file a animating the trajectories of the N particles.
     """
     t, traj_org = trajectories(file, dim)
+    n_t_org = len(traj_org)
     t_max = t[-1]
     tstep_per_frame = tstep/30
     time = np.arange(0, t_max, step=tstep_per_frame)
@@ -83,6 +86,7 @@ def animate(file, dim, tstep, name='animation', lim= None, dpi=300):
             scatters[j]._offsets3d=(traj[i][j,0:1], traj[i][j,1:2], traj[i][j,2:])
         return scatters
 
+    plt.style.use('dark_background')
     fig = plt.figure()
     # TODO: add a time slider
     if dim == 2:
@@ -92,8 +96,17 @@ def animate(file, dim, tstep, name='animation', lim= None, dpi=300):
         y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
         ax.set_xlim(x_all.min(), x_all.max())
         ax.set_ylim(y_all.min(), y_all.max())
-        ax.grid(False)
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
+        if line:
+            x = np.zeros((N, n_t_org))
+            y = np.zeros((N, n_t_org))
+            for i in range(N):
+                for j in range(n_t_org):
+                    x[i][j] = traj_org[j][i][0]
+                    y[i][j] = traj_org[j][i][1]
+            for i in range(N):
+                ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
+        ax.grid(False)
         ani = animation.FuncAnimation(fig, update_2, frames=n_t)
         ani.save('{}/ani_traj/{}_2D.mkv'.format(directory,name), fps=30, dpi=dpi)
 
@@ -106,8 +119,21 @@ def animate(file, dim, tstep, name='animation', lim= None, dpi=300):
         ax.set_xlim3d(x_all.min(), x_all.max())
         ax.set_ylim3d(y_all.min(), y_all.max())
         ax.set_zlim3d(z_all.min(), z_all.max())
-        ax.grid(False)
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], traj[0][i][2], s=2) for i in range(N)]
+        if line:
+            x = np.zeros((N, n_t_org))
+            y = np.zeros((N, n_t_org))
+            z = np.zeros((N, n_t_org))
+            for i in range(N):
+                for j in range(n_t_org):
+                    x[i][j] = traj_org[j][i][0]
+                    y[i][j] = traj_org[j][i][1]
+                    z[i][j] = traj_org[j][i][2]
+                ax.plot(x[i],y[i], z[i], linestyle='dotted', linewidth=0.3)
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
+        ax.grid(False)
         ani = animation.FuncAnimation(fig, update_3, frames=n_t)
         ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
@@ -149,9 +175,9 @@ def plot(file, dim, name='trajectories', dpi=300):
         y_all = y.flatten()
         ax.set_xlim(x_all.min(), x_all.max())
         ax.set_ylim(y_all.min(), y_all.max())
-        ax.grid(False)
         for i in range(N):
             ax.plot(x[i],y[i])
+        ax.grid(False)
         plt.savefig('{}/plot_traj/{}_2D.png'.format(directory,name), dpi=dpi)
 
     if dim == 3:
@@ -173,6 +199,10 @@ def plot(file, dim, name='trajectories', dpi=300):
         ax.set_zlim3d(z_all.min(), z_all.max())
         for i in range(N):
             ax.plot(x[i],y[i], z[i])
+        ax.grid(False)
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
         plt.savefig('{}/plot_traj/{}_3D.png'.format(directory,name), dpi=dpi)
     plt.show()
 
@@ -180,16 +210,23 @@ print('This program animtes or plots the trajectories of the particles in an N-b
 integrator = input('Please provide the file:\n')
 type_plot = input('Would you like to animate or plot the trajectories:\n')
 dim = int(input('What is the dimension of the simulation:\n'))
+lin_noline = input('Would you like to plot the trajectories along the animation:\n')
 
 name = integrator.rstrip('.txt')
+if lin_noline == 'y' or lin_noline=='yes':
+    line = True
+    name += '_with_traj'
+else:
+    line = False
+
 if type_plot == 'animate':
     tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
-    animate(integrator, dim, tstep, name= name)
+    animate(integrator, dim, tstep, line= line, name= name)
     
 elif type_plot == 'plot':
     plot(integrator, dim,name= name)
     
 elif type_plot == 'both':
     tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
-    animate(integrator, dim, tstep, name= name)
-    plot(integrator, dim, name= name)
+    animate(integrator, dim, tstep,line=line, name= name)
+    plot(integrator, dim, name= name.rstrip('_with_traj'))
