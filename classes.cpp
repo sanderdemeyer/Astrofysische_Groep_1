@@ -1,6 +1,4 @@
-#include <cassert>
-
-#define CONSTANT_G 1 //6.6743e-11
+#define CONSTANT_G 1
 #define THETA 1.35120719195966
 #define XI_PEFRL 0.1786178958448091
 #define LAMBDA_PEFRL -0.2123418310626054
@@ -16,8 +14,8 @@ class Vec {
 
     public:
     Vec() { _x=0; _y=0; _z=0;}
-    Vec(double x, double y, double z)
-        { _x = x; _y = y; _z = z;}
+    Vec(double x, double y, double z) { _x = x; _y = y; _z = z;}
+    
     double x() const { return _x; }
     double y() const { return _y; }
     double z() const { return _z; }
@@ -514,6 +512,7 @@ public:
         return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(relative_pos, relative_vel, reduced_mass), masses_old);
     }
 
+    /*
     NSystem_reg transform_backward(){
         std::vector<Vec> pos_new = _nsystem.positions();
         std::vector<Vec> vel_new = _nsystem.velocities();
@@ -526,6 +525,8 @@ public:
         double diff_masses = _initial_masses[1] + _initial_masses[0];
         Vec R1 = (sum_masses*R_under - _initial_masses[2]*R_prime)/diff_masses;
     }
+    */
+
 };
 
 void Leapfrog_reg(NSystem_reg& y_n, double dtau){

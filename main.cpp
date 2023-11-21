@@ -10,15 +10,9 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <cassert>
 
 #include "classes.cpp"
-
-// --------------------TO DO--------------------
-// switches (maak de main, plot, ... generiek): 
-//      integrator -> wordt ook gebruikt in naam output (incl. banen, energies, runtime, ...)
-// Nieuwe integratoren (VEEEEL)
-// Niet alle timesteps plotten (overkill)
-// Variable timestep
 
 typedef void (*integ) (NSystem&, double);
 
@@ -59,9 +53,9 @@ int main(){
     */
 
     h = 0.001;
-    iter = 40000;
+    iter = 100000;
     integrator = "RK4";
-    in_cond = "initial_conditions.txt";
+    in_cond = "Initial_conditions/initial_conditions_perturbed_criss_cross.txt";
 
    
     // start the execution
@@ -86,8 +80,7 @@ int main(){
 
     for (int i = 0; i <= iter; i++){
         t+= h;
-        //z = RK4_step(z, h);
-        //z = functions[integrator](z, h);
+
         functions[integrator](z, h);
 
         outfile << t;
