@@ -25,7 +25,7 @@ typedef void (*integ) (NSystem&, double);
 int main(){
 
     // Each new integrator must be added to this map
-    std::map<std::string, integ> functions ={
+    std::unordered_map<std::string, integ> functions ={
         {"RK4", RK4_step},
         {"Forest Ruth", Forest_Ruth_friend},
         {"PEFRL", PEFRL_friend},

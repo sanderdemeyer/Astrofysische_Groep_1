@@ -43,7 +43,7 @@ def trajectories(file, dim):
             ind_traj[i][j]= part_traj[j]
     return t, ind_traj
 
-def animate(file, dim, name='animation', lim= None, dpi=300):
+def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and animates the trajectories of the particles.
     
@@ -54,10 +54,12 @@ def animate(file, dim, name='animation', lim= None, dpi=300):
         The input needs to have the form: t  x_1  y_1  z_1 ... x_N  y_N  z_N
     dim
         Dimension of the Nbody simulation, has to be 2 or 3
+    tstep
+        The timescale of the simulation, or in other words how much should one second of video be equal to the time used in simulation
+    line
+        Whether or not to plot the lines
     name
         Name of the animation file
-    lim
-        An array with the axis limits
     dpi
         DPI of the animation
     
@@ -65,7 +67,13 @@ def animate(file, dim, name='animation', lim= None, dpi=300):
     -----------------------------
     Creates an mkv file a animating the trajectories of the N particles.
     """
-    t, traj = trajectories(file, dim)
+    t, traj_org = trajectories(file, dim)
+    n_t_org = len(traj_org)
+    t_max = t[-1]
+    tstep_per_frame = tstep/30
+    time = np.arange(0, t_max, step=tstep_per_frame)
+    f = interpolate.interp1d(t, traj_org, axis=0)
+    traj = f(time)
     n_t = len(traj)
     N = len(traj[0])
     def update_2(i):
@@ -78,33 +86,59 @@ def animate(file, dim, name='animation', lim= None, dpi=300):
             scatters[j]._offsets3d=(traj[i][j,0:1], traj[i][j,1:2], traj[i][j,2:])
         return scatters
 
+    plt.style.use('dark_background')
     fig = plt.figure()
     # TODO: add a time slider
     if dim == 2:
         ax = fig.add_subplot(111)
         ax.set_title('N={}'.format(N))
-        if lim:
-            ax.set_xlim(lim[0][0], lim[0][1])
-            ax.set_ylim(lim[1][0], lim[1][1])
-        ax.grid(False)
+        x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
+        y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
+        ax.set_xlim(x_all.min(), x_all.max())
+        ax.set_ylim(y_all.min(), y_all.max())
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
+        if line:
+            x = np.zeros((N, n_t_org))
+            y = np.zeros((N, n_t_org))
+            for i in range(N):
+                for j in range(n_t_org):
+                    x[i][j] = traj_org[j][i][0]
+                    y[i][j] = traj_org[j][i][1]
+            for i in range(N):
+                ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
+        ax.grid(False)
         ani = animation.FuncAnimation(fig, update_2, frames=n_t)
         ani.save('{}/ani_traj/{}_2D.mkv'.format(directory,name), fps=30, dpi=dpi)
 
     if dim == 3:
         ax = fig.add_subplot(projection='3d')
         ax.set_title('N={}'.format(N))
-        if lim:
-            ax.set_xlim3d(lim[0][0], lim[0][1])
-            ax.set_ylim3d(lim[1][0], lim[1][1])
-            ax.set_zlim3d(lim[2][0], lim[2][1])
-        ax.grid(False)
+        x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
+        y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
+        z_all = np.array([traj[i][:,2] for i in range(n_t)]).flatten()
+        ax.set_xlim3d(x_all.min(), x_all.max())
+        ax.set_ylim3d(y_all.min(), y_all.max())
+        ax.set_zlim3d(z_all.min(), z_all.max())
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], traj[0][i][2], s=2) for i in range(N)]
+        if line:
+            x = np.zeros((N, n_t_org))
+            y = np.zeros((N, n_t_org))
+            z = np.zeros((N, n_t_org))
+            for i in range(N):
+                for j in range(n_t_org):
+                    x[i][j] = traj_org[j][i][0]
+                    y[i][j] = traj_org[j][i][1]
+                    z[i][j] = traj_org[j][i][2]
+                ax.plot(x[i],y[i], z[i], linestyle='dotted', linewidth=0.3)
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
+        ax.grid(False)
         ani = animation.FuncAnimation(fig, update_3, frames=n_t)
         ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
 
-def plot(file, dim, name='trajectories', lim =None, dpi=300):
+def plot(file, dim, name='trajectories', dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and plots the trajectories of the particles in 2D or 3D.
     
@@ -117,8 +151,6 @@ def plot(file, dim, name='trajectories', lim =None, dpi=300):
         Dimension of the Nbody simulation, has to be 2 or 3
     name
         Name of the plot
-    lim
-        An array with the axis limits
     dpi
         DPI of the image
     
@@ -139,12 +171,13 @@ def plot(file, dim, name='trajectories', lim =None, dpi=300):
                 y[i][j] = traj[j][i][1]
         ax = fig.add_subplot(111)
         ax.set_title('N={}'.format(N))
-        if lim:
-            ax.set_xlim(lim[0][0], lim[0][1])
-            ax.set_ylim(lim[1][0], lim[1][1])
-        ax.grid(False)
+        x_all = x.flatten()
+        y_all = y.flatten()
+        ax.set_xlim(x_all.min(), x_all.max())
+        ax.set_ylim(y_all.min(), y_all.max())
         for i in range(N):
             ax.plot(x[i],y[i])
+        ax.grid(False)
         plt.savefig('{}/plot_traj/{}_2D.png'.format(directory,name), dpi=dpi)
 
     if dim == 3:
@@ -158,12 +191,18 @@ def plot(file, dim, name='trajectories', lim =None, dpi=300):
                 z[i][j] = traj[j][i][2]
         ax = fig.add_subplot(projection='3d')
         ax.set_title('N={}'.format(N))
-        if lim:
-            ax.set_xlim3d(lim[0][0], lim[0][1])
-            ax.set_ylim3d(lim[1][0], lim[1][1])
-            ax.set_zlim3d(lim[2][0], lim[2][1])
+        x_all = x.flatten()
+        y_all = y.flatten()
+        z_all = z.flatten()
+        ax.set_xlim3d(x_all.min(), x_all.max())
+        ax.set_ylim3d(y_all.min(), y_all.max())
+        ax.set_zlim3d(z_all.min(), z_all.max())
         for i in range(N):
             ax.plot(x[i],y[i], z[i])
+        ax.grid(False)
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
         plt.savefig('{}/plot_traj/{}_3D.png'.format(directory,name), dpi=dpi)
     plt.show()
 
@@ -171,27 +210,23 @@ print('This program animtes or plots the trajectories of the particles in an N-b
 integrator = input('Please provide the file:\n')
 type_plot = input('Would you like to animate or plot the trajectories:\n')
 dim = int(input('What is the dimension of the simulation:\n'))
-lim_nolim = input('Would you like to limit the axis of the simulation?\n')
-if lim_nolim == 'y':
-    lim = []
-    x_in = input('xlim: ')
-    xlim = x_in.split(",")
-    lim.append([int(xlim[0]), int(xlim[1])])
-    y_in = input('ylim: ')
-    ylim = y_in.split(",")
-    lim.append([int(ylim[0]), int(ylim[1])])
-    if dim == 3:
-        z_in = input('zlim: ')
-        zlim = z_in.split(",")
-        lim.append([int(zlim[0]), int(zlim[1])])
-else:
-    lim = None
+lin_noline = input('Would you like to plot the trajectories along the animation:\n')
 
 name = integrator.rstrip('.txt')
+if lin_noline == 'y' or lin_noline=='yes':
+    line = True
+    name += '_with_traj'
+else:
+    line = False
+
 if type_plot == 'animate':
-    animate(integrator, dim, name= name, lim=lim)
+    tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
+    animate(integrator, dim, tstep, line= line, name= name)
+    
 elif type_plot == 'plot':
-    plot(integrator, dim, name= name, lim=lim)
+    plot(integrator, dim,name= name)
+    
 elif type_plot == 'both':
-    animate(integrator, dim, name= name, lim=lim)
-    plot(integrator, dim, name= name, lim=lim)
+    tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
+    animate(integrator, dim, tstep,line=line, name= name)
+    plot(integrator, dim, name= name.rstrip('_with_traj'))
