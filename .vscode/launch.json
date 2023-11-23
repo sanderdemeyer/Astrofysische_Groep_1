@@ -10,7 +10,7 @@
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",
+            "MIMode": "g++",
             "miDebuggerPath": "C:\\Strawberry\\c\\bin\\gdb.exe",
             "setupCommands": [
                 {

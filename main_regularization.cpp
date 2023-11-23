@@ -17,7 +17,8 @@
 // Variable timestep
 
 int main(){
-    
+
+
     std::cout << "Run Start" << std::endl;
     int time_start = time(NULL);
 
@@ -28,7 +29,8 @@ int main(){
 
     double h = 0.001;
 
-    NSystem z_help = getvalues("initial_conditions_two_body.txt");
+    std::string in_cond = "Initial_conditions/initial_conditions_two_body.txt";
+    NSystem z_help = getvalues(in_cond);
     std::vector<double> initial_masses;
     Regularized_coo regul_coo;
     NSystem_reg z = NSystem_reg(z_help, false, regul_coo, initial_masses);
@@ -37,38 +39,45 @@ int main(){
     //std::vector<double> masses = z.masses();
 
     int NoB = z.nsystem().positions().size(); // NoB = Number of Bodies
+    std::cout << "size is " << NoB << std::endl;
 
     bool regularized = false;
     double transform_distance = 0.9;
     double dtau = h/transform_distance;
     Vec u, r;
 
-    for (int i = 0; i < 100000; i++){
-
+    for (int i = 0; i < 20000; i++){ // 5540
         bool should_be_regularized = z.check_separation(transform_distance);
+        should_be_regularized = (i < 15000) && (i > 8000);
+
         if (should_be_regularized && (!regularized)){
+            std::cout << "Forward for i = " << i << std::endl;
             z = z.transform_forward(0, 1);
             regularized = !regularized;
         }
         else if ((!should_be_regularized) && (regularized)){
+            std::cout << "Backward for i = " << i << std::endl;
             z = z.transform_backward();
             regularized = !regularized;
         }
         //z = RK4_step(z, h);
         //Yoshida_4_new(x, v, masses, h);
         //PEFRL_friend(z, h);
-        Leapfrog_reg(z, h);
+        z.timestep(h);
         //RK4_step(z, h);
         //Yoshida_friend(z, h);
 
-        outfile << i;
-        for (int body_number = 0; body_number < NoB; body_number++){
-            outfile << ' ' << z.nsystem().positions()[body_number].x() << ' ' << z.nsystem().positions()[body_number].y() << ' ' << z.nsystem().positions()[body_number].z();
-            //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
+        if (!regularized){
+            outfile << i;
+            for (int body_number = 0; body_number < NoB; body_number++){
+                outfile << ' ' << z.nsystem().positions()[body_number].x() << ' ' << z.nsystem().positions()[body_number].y() << ' ' << z.nsystem().positions()[body_number].z();
+                //std::cout << ' ' << z.nsystem().positions()[body_number].x() << ' ' << z.nsystem().positions()[body_number].y() << ' ' << z.nsystem().positions()[body_number].z() << std::endl;
+                //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
+            }
+            outfile << '\n';
+            
+            outfile_energy << z.nsystem().get_energy() << '\n';
         }
-        outfile << '\n';
-        
-        outfile_energy << z.nsystem().get_energy() << '\n';
 
         if (i % 1000 == 0){
             std::cout << regularized << should_be_regularized << z.nsystem().positions().size() << std::endl;

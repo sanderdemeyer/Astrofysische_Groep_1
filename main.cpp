@@ -53,7 +53,7 @@ int main(){
     */
 
     h = 0.001;
-    iter = 100000;
+    iter = 10000;
     integrator = "RK4";
     in_cond = "Initial_conditions/initial_conditions_perturbed_criss_cross.txt";
 

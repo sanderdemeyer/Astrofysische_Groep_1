@@ -50,7 +50,8 @@
         "typeinfo": "cpp",
         "cstdarg": "cpp",
         "cinttypes": "cpp",
-        "any": "cpp"
+        "any": "cpp",
+        "map": "cpp"
     },
     "spellright.language": [
         "en",
