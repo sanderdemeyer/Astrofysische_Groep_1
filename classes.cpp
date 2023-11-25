@@ -241,6 +241,14 @@ NSystem operator*(double s, NSystem a) { return a *= s; }
 NSystem operator/(NSystem a, double s) { return a /= s; }
 NSystem operator+(NSystem a, NSystem b) { return a += b; }
 
+double compare_solutions(NSystem a, NSystem b){
+    double error = 0;
+    for (int i = 0; i < a.positions().size(); i++){
+        error += (a.positions()[i] - b.positions()[i]).norm2();
+        error += (a.velocities()[i] - b.velocities()[i]).norm2();
+    }
+    return sqrt(error);
+}
 
 std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> masses){
     std::vector<Vec> gs;
