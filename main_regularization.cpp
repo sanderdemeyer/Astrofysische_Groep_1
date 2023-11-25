@@ -29,7 +29,7 @@ int main(){
 
     double h = 0.001;
 
-    std::string in_cond = "Initial_conditions/initial_conditions_two_body.txt";
+    std::string in_cond = "Initial_conditions/initial_conditions_two_body_3D.txt";
     NSystem z_help = getvalues(in_cond);
     std::vector<double> initial_masses;
     Regularized_coo regul_coo;
@@ -48,7 +48,7 @@ int main(){
 
     for (int i = 0; i < 20000; i++){ // 5540
         bool should_be_regularized = z.check_separation(transform_distance);
-        should_be_regularized = (i < 15000) && (i > 8000);
+        should_be_regularized = (i < 8015) && (i > 7990);
 
         if (should_be_regularized && (!regularized)){
             std::cout << "Forward for i = " << i << std::endl;
@@ -81,6 +81,15 @@ int main(){
 
         if (i % 1000 == 0){
             std::cout << regularized << should_be_regularized << z.nsystem().positions().size() << std::endl;
+        }
+
+        if (i < 8030 && i > 7970){
+            std::cout << "Started for i = \n" << i;
+            for (int body_number = 0; body_number < NoB; body_number++){
+                std::cout << ' ' << z.nsystem().positions()[body_number].x() << ' ' << z.nsystem().positions()[body_number].y() << ' ' << z.nsystem().positions()[body_number].z() << std::endl;
+                //std::cout << ' ' << z.nsystem().positions()[body_number].x() << ' ' << z.nsystem().positions()[body_number].y() << ' ' << z.nsystem().positions()[body_number].z() << std::endl;
+                //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
+            }
         }
     }
 

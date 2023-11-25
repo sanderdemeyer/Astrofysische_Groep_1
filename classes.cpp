@@ -360,6 +360,13 @@ public:
         return 0; // TO DO
     }
 
+    void print_positions(){
+        std::cout << "Positions are ";
+        for (int i = 0; i < _positions.size(); i++){
+            print(_positions[i]); 
+        }
+    }
+
 };
 
 NSystem operator*(NSystem a, double s) { return a *= s; }
@@ -571,7 +578,6 @@ public:
 
     Regularized_coo evaluate_g_reg(){
         double E = (2*_v.norm2() - _mu)/(_u.norm2());
-        //std::cout << "energy is " << E << std::endl;
         Vec4 u_prime = _v;
         Vec4 v_prime = 0.5*E*_u;
         return Regularized_coo(u_prime, v_prime, _mu);
@@ -607,12 +613,9 @@ double RK4_step_reg(Regularized_coo& y_n, double h){
 
 Vec4 transform_vector_forward(Vec r){
     double expr;
-    if (r.x() > 0) {
-        expr = r.x() + r.norm();
-    } else {
-        expr = r.x() - r.norm();
-    }
-    double u1 = sqrt(expr/2);
+    expr = r.x() + r.norm();
+    
+    double u1 = -sqrt(expr/2);
     double u2 = r.y()/(2*u1);
     double u3 = r.z()/(2*u1);
     // double u2 = r.y()/sqrt(2*expr);
@@ -734,9 +737,10 @@ public:
 
     void timestep(double dtau){
         if (_regularized){
-            double dt = RK4_step_reg(_reg_coo, dtau);
-            Yoshida_4_friend(_nsystem, dt);
+            double u_squared = RK4_step_reg(_reg_coo, dtau);
+            Yoshida_4_friend(_nsystem, dtau*u_squared*1);
             //Yoshida_4_friend(_nsystem, dtau);
+            std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
         } else {
             Yoshida_4_friend(_nsystem, dtau);
         }
