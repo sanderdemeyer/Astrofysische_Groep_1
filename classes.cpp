@@ -5,6 +5,7 @@
 #define CHI_PEFRL -0.06626458266981849
 #define YOSHIDA_W0 -1.702414384
 #define YOSHIDA_W1 1.351207192
+#define EPSILON 0.0001
 
 // represents a 3-D vector
 class Vec {
@@ -202,7 +203,8 @@ public:
             Vec g = Vec(0, 0, 0);
             for (size_t j=0; j!=_positions.size(); ++j) {
                 if (i != j) {
-                    g += (-_masses[j]*CONSTANT_G/(_positions[i]-_positions[j]).norm3()) * (_positions[i]-_positions[j]);
+                    //g += (-_masses[j]*CONSTANT_G/(_positions[i]-_positions[j]).norm3()) * (_positions[i]-_positions[j]);
+                    g += (-_masses[j]*CONSTANT_G/pow(pow(EPSILON,2)+(_positions[i]-_positions[j]).norm2(),1.5)) * (_positions[i]-_positions[j]);
                 }
             }
             gs.push_back(g);
