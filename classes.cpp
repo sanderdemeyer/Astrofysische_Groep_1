@@ -394,7 +394,6 @@ NSystem getvalues(std::string inputfile) {
     return NSystem(ini_positions, ini_velocities, masses);
 }
 
-
 class Regularized_coo {
 
 private:
@@ -458,6 +457,68 @@ Regularized_coo operator/(Regularized_coo a, double s) { return a /= s; }
 Regularized_coo operator+(Regularized_coo a, Regularized_coo b) { return a += b; }
 
 
+Vec4 rotate_vec4(Vec4 u, double theta){
+    double comp1 = u.x()*cos(theta);
+    double comp2 = u.y()*cos(theta);
+    double comp3 = u.z()*cos(theta);
+    double comp4 = u.a()*cos(theta);
+
+    comp1 += -u.a()*sin(theta);
+    comp2 += u.z()*sin(theta);
+    comp3 += -u.y()*sin(theta);
+    comp4 += u.x()*sin(theta);
+
+    return Vec4(comp1, comp2, comp3, comp4);
+}
+
+Vec4 transform_vector_forward(Vec r){
+    double expr;
+    expr = r.x() + r.norm();
+    
+    double u1 = -sqrt(expr/2);
+    double u2 = r.y()/(2*u1);
+    double u3 = r.z()/(2*u1);
+    // double u2 = r.y()/sqrt(2*expr);
+    // double u3 = r.z()/sqrt(2*expr);
+    std::cout << "Teller of transform is " << expr << std::endl;
+    std::cout << "u1 = " << u1 << std::endl;
+    std::cout << "u2 = " << u2 << std::endl;
+    std::cout << "u3 = " << u3 << std::endl;
+    return Vec4(u1, u2, u3, 0);
+}
+
+
+Regularized_coo regularize_together(Vec u_old, Vec v_old, double Energy, double reduced_mass){
+    Vec4 u_new = transform_vector_forward(u_old);
+    Vec4 v_new = transform_vector_forward(v_old);
+
+    Vec4 u, v;
+    double check1, check2;
+    double check = 10000;
+    double theta1_best = 0;
+    double theta2_best = 0;
+
+    for (int i = 0; i < 1000; i++){
+        for (int j = 0; j < 1000; j++){
+            double theta1 = M_PI*i/1000;
+            double theta2 = M_PI*j/1000;
+            u = rotate_vec4(u_new, theta1);
+            v = rotate_vec4(v_new, theta2);
+            double check1 = v.x()*u.a() - v.a()*u.x() - v.y()*u.z() + v.z()*u.y();
+            double check2 = Energy - 2*v.norm2()/u.norm2();
+            if (pow(check1,2)+pow(check2,2) < check){
+                theta1_best = theta1;
+                theta2_best = theta2;
+                check = pow(check1,2)+pow(check2,2);
+            }
+            // std::cout << "errors are " << check1 << ", and " << check2 << std::endl;
+        }
+    }
+    std::cout << "best thetas are " << theta1_best << ", and " << theta2_best << "with error " << check << std::endl;
+    return Regularized_coo(rotate_vec4(u_new, 0), rotate_vec4(v_new, 0), reduced_mass);
+    return Regularized_coo(rotate_vec4(u_new, theta1_best), rotate_vec4(v_new, theta2_best), reduced_mass);
+}
+
 double Leapfrog_reg(Regularized_coo& y_old, double dtau){
     double E = (2*y_old._v.norm2() - y_old._mu)/y_old._u.norm2();
     std::cout << "Energy is " << E << std::endl;
@@ -476,22 +537,6 @@ double RK4_step_reg(Regularized_coo& y_n, double h){
     Regularized_coo k4 = (y_n + k3).evaluate_g_reg()*h;
     y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
     return y_n._u.norm();
-}
-
-Vec4 transform_vector_forward(Vec r){
-    double expr;
-    expr = r.x() + r.norm();
-    
-    double u1 = -sqrt(expr/2);
-    double u2 = r.y()/(2*u1);
-    double u3 = r.z()/(2*u1);
-    // double u2 = r.y()/sqrt(2*expr);
-    // double u3 = r.z()/sqrt(2*expr);
-    std::cout << "Teller of transform is " << expr << std::endl;
-    std::cout << "u1 = " << u1 << std::endl;
-    std::cout << "u2 = " << u2 << std::endl;
-    std::cout << "u3 = " << u3 << std::endl;
-    return Vec4(u1, u2, u3, 0);
 }
 
 
@@ -566,7 +611,10 @@ public:
         vel_new.push_back(com_vel);
         masses_new.push_back(joint_mass);
 
-        return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(transform_vector_forward(relative_pos), transform_vector_forward(relative_vel), reduced_mass), masses_old);
+        Regularized_coo reg_coo_rotated = regularize_together(relative_pos, relative_vel, _nsystem.get_energy(), reduced_mass);
+
+        return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, reg_coo_rotated, masses_old);
+        //return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(transform_vector_forward(relative_pos), transform_vector_forward(relative_vel), reduced_mass), masses_old);
     }
     
     
@@ -610,3 +658,110 @@ public:
         }
     }
 };
+
+/*
+void Leapfrog_reg(NSystem_reg& y_n, double dtau){
+    if (y_n._regularized){
+        Leapfrog_friend(y_n._nsystem, dtau);
+    } else {
+        Leapfrog_friend(y_n._nsystem, dtau);
+    }
+}
+*/
+
+
+NSystem RK4_step_old(NSystem y_n, double h){
+    NSystem k1 = y_n.evaluate_g() * h;
+    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k4 = (y_n + k3).evaluate_g()*h;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+    return y_n + k1/6 + k2/3 + k3/3 + k4/6;
+}
+
+NSystem Forest_Ruth(NSystem y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
+
+    x = x + (THETA*h/2)*v;
+    v = v + THETA*h*evaluate_a(x, masses);
+    x = x + ((1-THETA)*h/2)*v;
+    v = v + ((1-2*THETA)*h)*evaluate_a(x, masses);
+    x = x + ((1-THETA)*h/2)*v;
+    v = v + THETA*h*evaluate_a(x, masses);
+    x = x + (THETA*h/2)*v;
+
+    return NSystem(x, v, masses);
+}
+
+NSystem PEFRL(NSystem y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
+    x = x + XI_PEFRL*h*v;
+    v = v + ((1-2*LAMBDA_PEFRL)*h/2)*evaluate_a(x, masses);
+    x = x + CHI_PEFRL*h*v;
+    v = v + LAMBDA_PEFRL*h*evaluate_a(x, masses);
+    x = x + (1-2*(CHI_PEFRL+XI_PEFRL))*h*v;
+    v = v + LAMBDA_PEFRL*h*evaluate_a(x, masses);
+    x = x + CHI_PEFRL*h*v;
+    v = v + ((1-2*LAMBDA_PEFRL)*h/2)*evaluate_a(x, masses);
+    x = x + XI_PEFRL*h*v;
+    return NSystem(x, v, masses);
+}
+
+NSystem Velocity_Verlet(NSystem y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
+    v = v + (h/2)*evaluate_a(x, masses);
+    x = x + h*v;
+    v = v + (h/2)*evaluate_a(x, masses);
+    return NSystem(x, v, masses);
+}
+
+NSystem Position_Verlet(NSystem y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
+    x = x + (h/2)*v;
+    v = v + h*evaluate_a(x, masses);
+    x = x + (h/2)*v;
+    return NSystem(x, v, masses);
+}
+
+NSystem Leapfrog(NSystem y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
+    x = x + h*v;
+    v = v + h*evaluate_a(x, masses);
+    return NSystem(x, v, masses);
+}
+
+NSystem Yoshida_4(NSystem& y_n, double h){
+    std::vector<Vec> x = y_n.positions();
+    std::vector<Vec> v = y_n.velocities();
+    std::vector<double> masses = y_n.masses();
+
+    x = x + (YOSHIDA_W1/2)*h*v;
+    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
+    v = v +  YOSHIDA_W0*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
+    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W1/2)*h*v;
+    return NSystem(x, v, masses);
+}
+
+void Yoshida_4_new(std::vector<Vec>& x, std::vector<Vec>& v, std::vector<double> masses, double h){
+    x = x + (YOSHIDA_W1/2)*h*v;
+    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
+    v = v +  YOSHIDA_W0*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
+    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W1/2)*h*v;
+}
+

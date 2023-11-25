@@ -48,7 +48,7 @@ int main(){
 
     for (int i = 0; i < 20000; i++){ // 5540
         bool should_be_regularized = z.check_separation(transform_distance);
-        should_be_regularized = (i < 8015) && (i > 7990);
+        should_be_regularized = (i < 8500) && (i > 7500);
 
         if (should_be_regularized && (!regularized)){
             std::cout << "Forward for i = " << i << std::endl;
@@ -90,6 +90,8 @@ int main(){
                 //std::cout << ' ' << z.nsystem().positions()[body_number].x() << ' ' << z.nsystem().positions()[body_number].y() << ' ' << z.nsystem().positions()[body_number].z() << std::endl;
                 //outfile << ' ' << x[body_number].x() << ' ' << x[body_number].y() << ' ' << x[body_number].z();
             }
+            z.nsystem().print_positions();
+
         }
     }
 
