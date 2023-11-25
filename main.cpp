@@ -20,12 +20,12 @@ int main(){
 
     // Each new integrator must be added to this map
     std::unordered_map<std::string, integ> functions ={
-        {"Forward Euler", Forward Euler},
+        {"Forward Euler", Forward_Euler},
         {"RK2", RK2_step},
         {"Heun", Heun},
         {"Heun3", Heun3},
         {"Ralston", Ralston},
-        {"Ralston", Ralston3},
+        {"Ralston3", Ralston3},
         {"RK3", RK3_step},
         {"RK4", RK4_step},
         {"Forest Ruth", Forest_Ruth_friend},
@@ -64,7 +64,6 @@ int main(){
     integrator = "RK4";
     in_cond = "Initial_conditions/initial_conditions_perturbed_criss_cross.txt";
 
-   
     // start the execution
     int time_start = time(NULL);
 
