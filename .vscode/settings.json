@@ -51,7 +51,11 @@
         "cstdarg": "cpp",
         "cinttypes": "cpp",
         "any": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "chrono": "cpp",
+        "codecvt": "cpp",
+        "list": "cpp",
+        "ratio": "cpp"
     },
     "spellright.language": [
         "en",

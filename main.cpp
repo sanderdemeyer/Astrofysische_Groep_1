@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <map>
 #include <cassert>
+#include <filesystem>
 
 #include "classes.cpp"
 
@@ -65,20 +66,27 @@ int main(){
     h = 0.001;
     iter = 100000;
     integrator = "RK4";
-    in_cond = "Initial_conditions/initial_conditions_perturbed_criss_cross.txt";
-    in_cond = "Initial_conditions/initial_conditions_Burrau.txt";
+    // in_cond = "Initial_conditions/initial_conditions_perturbed_criss_cross.txt";
+    in_cond = "Burrau.txt";
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -15);
 
+    std::string SystemName = in_cond.substr(0, in_cond.size()-4);
+
     // start the execution
     int time_start = time(NULL);
 
-    NSystem z = getvalues(in_cond);
+    NSystem z = getvalues("Initial_conditions/" + in_cond);
     int N = z.n();
-    std::string filename= std::to_string(N)+ "_body_" + integrator + ".txt";
 
-    std::ofstream outfile("traj/" + filename);
+    //std::string filename= std::to_string(N)+ "_body_" + integrator + ".txt";
+    std::string filename = SystemName + "_" + integrator + "_" + std::to_string(iter) + "_" + std::to_string(h);
+    if (ADAPTIVE_TIME_STEP){
+        filename += "_adaptive";
+    }
+
+    std::ofstream outfile("traj/" + filename + ".txt");
     outfile << std::setprecision(8);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
@@ -87,7 +95,7 @@ int main(){
         outfile << '\n';
 
 
-    std::ofstream outfile_energy("energy/" + filename);
+    std::ofstream outfile_energy("energy/" + filename + ".txt");
     outfile_energy << std::setprecision(8);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
