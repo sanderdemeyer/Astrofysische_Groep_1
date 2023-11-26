@@ -181,7 +181,7 @@ def plot(file, dim, title, name='trajectories', dpi=300):
         ax.set_xlim(x_all.min(), x_all.max())
         ax.set_ylim(y_all.min(), y_all.max())
         for i in range(N):
-            ax.plot(x[i],y[i])
+            ax.plot(x[i],y[i], linewidth=0.5)
         ax.grid(False)
         plt.savefig('{}/plot_traj/{}_2D.png'.format(directory,name), dpi=dpi)
 
@@ -203,7 +203,7 @@ def plot(file, dim, title, name='trajectories', dpi=300):
         ax.set_ylim3d(y_all.min(), y_all.max())
         ax.set_zlim3d(z_all.min(), z_all.max())
         for i in range(N):
-            ax.plot(x[i],y[i], z[i])
+            ax.plot(x[i],y[i], z[i], linewidth=0.5)
         ax.grid(False)
         ax.xaxis.pane.fill = False
         ax.yaxis.pane.fill = False
@@ -220,7 +220,7 @@ name = integrator.rstrip('.txt')
 
 args = name.split('_')
 title = "{} integrated using {} \n iterations= {}, h= {}".format(args[0], args[1], args[2], args[3])
-if args[4]:
+if len(args) == 5:
     title += "\n with adaptive timestep"
 
 filename = args[0] + '_' + args[1]
