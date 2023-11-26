@@ -9,22 +9,24 @@ integrator = input('Please provide the file:\n')
 t, E = np.loadtxt('{}/energy/{}'.format(directory, integrator), unpack=True)
 type_plot = input('Would you like to plot the total energy or the relative error:\n')
 E_rel_error = (E - E[0])/E[0]
+
 name = integrator.rstrip('.txt')
-print(integrator)
+args = name.split('_')
+filename = args[0] + '_' + args[1]
 
 if type_plot == 'total energy':
     plt.plot(t, E)
     plt.xlabel('t')
     plt.ylabel('E')
     plt.grid()
-    plt.savefig('{}/plot_energy/{}_total.png'.format(directory,name), dpi=300)
+    plt.savefig('{}/plot_energy/{}_total.png'.format(directory, filename), dpi=300)
     plt.show()
 if type_plot == 'relative error':
     plt.plot(t, E_rel_error)
     plt.xlabel('t')
     plt.ylabel('$\Delta E_{rel}$')
     plt.grid()
-    plt.savefig('{}/plot_energy/{}_relerror.png'.format(directory,name), dpi=300)
+    plt.savefig('{}/plot_energy/{}_relerror.png'.format(directory,filename), dpi=300)
     plt.show()
 if type_plot == 'both':
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -37,5 +39,5 @@ if type_plot == 'both':
     ax2.grid()
 
     fig.tight_layout()
-    plt.savefig('{}/plot_energy/{}.png'.format(directory,name), dpi=300)
+    plt.savefig('{}/plot_energy/{}.png'.format(directory,filename), dpi=300)
     plt.show()

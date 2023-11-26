@@ -43,7 +43,7 @@ def trajectories(file, dim):
             ind_traj[i][j]= part_traj[j]
     return t, ind_traj
 
-def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
+def animate(file, dim, tstep, title, line=False, name='animation', lim= None, dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and animates the trajectories of the particles.
     
@@ -56,6 +56,8 @@ def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
         Dimension of the Nbody simulation, has to be 2 or 3
     tstep
         The timescale of the simulation, or in other words how much should one second of video be equal to the time used in simulation
+    title
+        Title of the plot
     line
         Whether or not to plot the lines
     name
@@ -91,7 +93,7 @@ def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
     # TODO: add a time slider
     if dim == 2:
         ax = fig.add_subplot(111)
-        ax.set_title('N={}'.format(N))
+        ax.set_title('N={}, '.format(N) + title)
         x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
         y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
         ax.set_xlim(x_all.min(), x_all.max())
@@ -112,7 +114,7 @@ def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
 
     if dim == 3:
         ax = fig.add_subplot(projection='3d')
-        ax.set_title('N={}'.format(N))
+        ax.set_title('N={}, '.format(N) + title)
         x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
         y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
         z_all = np.array([traj[i][:,2] for i in range(n_t)]).flatten()
@@ -138,7 +140,7 @@ def animate(file, dim, tstep, line=False, name='animation', lim= None, dpi=300):
         ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
 
-def plot(file, dim, name='trajectories', dpi=300):
+def plot(file, dim, title, name='trajectories', dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and plots the trajectories of the particles in 2D or 3D.
     
@@ -149,6 +151,8 @@ def plot(file, dim, name='trajectories', dpi=300):
         The input needs to have the form: t  x_1  y_1  z_1 ... x_N  y_N  z_N
     dim
         Dimension of the Nbody simulation, has to be 2 or 3
+    title
+        Title of the plot
     name
         Name of the plot
     dpi
@@ -162,6 +166,7 @@ def plot(file, dim, name='trajectories', dpi=300):
     n_t = len(traj)
     N = len(traj[0])
     fig = plt.figure()
+    plt.style.use('dark_background')
     if dim == 2:
         x = np.zeros((N, n_t))
         y = np.zeros((N, n_t))
@@ -170,7 +175,7 @@ def plot(file, dim, name='trajectories', dpi=300):
                 x[i][j] = traj[j][i][0]
                 y[i][j] = traj[j][i][1]
         ax = fig.add_subplot(111)
-        ax.set_title('N={}'.format(N))
+        ax.set_title('N={}, '.format(N) + title)
         x_all = x.flatten()
         y_all = y.flatten()
         ax.set_xlim(x_all.min(), x_all.max())
@@ -190,7 +195,7 @@ def plot(file, dim, name='trajectories', dpi=300):
                 y[i][j] = traj[j][i][1]
                 z[i][j] = traj[j][i][2]
         ax = fig.add_subplot(projection='3d')
-        ax.set_title('N={}'.format(N))
+        ax.set_title('N={}, '.format(N) + title)
         x_all = x.flatten()
         y_all = y.flatten()
         z_all = z.flatten()
@@ -210,23 +215,33 @@ print('This program animtes or plots the trajectories of the particles in an N-b
 integrator = input('Please provide the file:\n')
 type_plot = input('Would you like to animate or plot the trajectories:\n')
 dim = int(input('What is the dimension of the simulation:\n'))
-lin_noline = input('Would you like to plot the trajectories along the animation:\n')
 
 name = integrator.rstrip('.txt')
-if lin_noline == 'y' or lin_noline=='yes':
-    line = True
-    name += '_with_traj'
-else:
-    line = False
+
+args = name.split('_')
+title = "{} integrated using {} \n iterations= {}, h= {}".format(args[0], args[1], args[2], args[3])
+if args[4]:
+    title += "\n with adaptive timestep"
+
+filename = args[0] + '_' + args[1]
+
+if type_plot == 'animate':
+    lin_noline = input('Would you like to plot the trajectories along the animation:\n')
+    if lin_noline == 'y' or lin_noline=='yes':
+        line = True
+        filename += '_with_traj'
+    else:
+        line = False
+
 
 if type_plot == 'animate':
     tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
-    animate(integrator, dim, tstep, line= line, name= name)
+    animate(integrator, dim, tstep, title=title, line= line, name= filename)
     
 elif type_plot == 'plot':
-    plot(integrator, dim,name= name)
+    plot(integrator, dim, title=title, name= filename)
     
 elif type_plot == 'both':
     tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
-    animate(integrator, dim, tstep,line=line, name= name)
-    plot(integrator, dim, name= name.rstrip('_with_traj'))
+    animate(integrator, dim, tstep, title=title, line=line, name= filename)
+    plot(integrator, dim, title=title, name= filename.rstrip('_with_traj'))

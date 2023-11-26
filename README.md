@@ -8,7 +8,7 @@ De folder **`visual`** bevat de python bestanden gebruikt voor visualisatie. De 
 ## **`main.cpp`**
 ### Input
 ```Provide the initial conditions:```  
-The filename should be provided. The txt file should have the given format:
+The initial conditions are stored in the **`Initial_conditions`** folder. Only the filename should be provided. The txt file should have the given format:
 
 $$
 \begin{gather*}
@@ -22,6 +22,12 @@ $$
 
 ```Which integrator would you like to use:```  
 Answer with one of the following:
+- Forward Euler
+- Heun
+- Heun3
+- Ralston
+- Ralston3
+- RK3
 - RK4
 - Forest Ruth
 - PEFRL
@@ -37,4 +43,5 @@ Give the initial timestep.
 Give the number of iterations.
 
 ### Output
-The trajectories are stored in the **`traj`** folder and the energies are stored in the **`energy`** folder.
+The trajectories are stored in the **`traj`** folder and the energies are stored in the **`energy`** folder. The naming convention is:
+*SystemName_integrator_iterations_h(_adaptive).txt*
