@@ -64,10 +64,10 @@ int main(){
     */
 
     h = 0.001;
-    iter = 100000;
+    iter = 50000;
     integrator = "RK4";
     // in_cond = "perturbed_criss_cross.txt";
-    in_cond = "Burrau.txt";
+    in_cond = "Solar-System.txt";
     //in_cond = "100gauss.txt";
 
     double Delta_max = pow(10, -10);
