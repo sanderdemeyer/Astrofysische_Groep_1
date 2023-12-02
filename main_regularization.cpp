@@ -29,7 +29,7 @@ int main(){
 
     double h = 0.001;
 
-    std::string in_cond = "Initial_conditions/initial_conditions_two_body_3D.txt";
+    std::string in_cond = "Initial_conditions/two-body-3D.txt";
     NSystem z_help = getvalues(in_cond);
     std::vector<double> initial_masses;
     Regularized_coo regul_coo;
@@ -46,9 +46,9 @@ int main(){
     double dtau = h/transform_distance;
     Vec u, r;
 
-    for (int i = 0; i < 20000; i++){ // 5540
+    for (int i = 0; i < 10000; i++){ // 5540
         bool should_be_regularized = z.check_separation(transform_distance);
-        should_be_regularized = (i < 8500) && (i > 7500);
+        should_be_regularized = (i < 6005) && (i > 5995);
 
         if (should_be_regularized && (!regularized)){
             std::cout << "Forward for i = " << i << std::endl;

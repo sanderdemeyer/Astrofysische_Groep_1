@@ -110,7 +110,7 @@ def animate(file, dim, tstep, title, line=False, name='animation', lim= None, dp
                 ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
         ax.grid(False)
         ani = animation.FuncAnimation(fig, update_2, frames=n_t)
-        ani.save('{}/ani_traj/{}_2D.mkv'.format(directory,name), fps=30, dpi=dpi)
+        #ani.save('{}/ani_traj/{}_2D.mkv'.format(directory,name), fps=30, dpi=dpi)
 
     if dim == 3:
         ax = fig.add_subplot(projection='3d')
@@ -137,7 +137,7 @@ def animate(file, dim, tstep, title, line=False, name='animation', lim= None, dp
         ax.zaxis.pane.fill = False
         ax.grid(False)
         ani = animation.FuncAnimation(fig, update_3, frames=n_t)
-        ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
+        #ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
 
 def plot(file, dim, title, name='trajectories', dpi=300):
@@ -236,12 +236,12 @@ if type_plot == 'animate':
 
 if type_plot == 'animate':
     tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
-    animate(integrator, dim, tstep, title=title, line= line, name= filename)
+    animate(integrator, dim, tstep, title=title, line= True, name= filename)
     
 elif type_plot == 'plot':
     plot(integrator, dim, title=title, name= filename)
     
 elif type_plot == 'both':
     tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
-    animate(integrator, dim, tstep, title=title, line=line, name= filename)
+    animate(integrator, dim, tstep, title=title, line=True, name= filename)
     plot(integrator, dim, title=title, name= filename.rstrip('_with_traj'))

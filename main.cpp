@@ -64,10 +64,11 @@ int main(){
     */
 
     h = 0.001;
-    iter = 50000;
+    iter = 2500000;
     integrator = "RK4";
     // in_cond = "perturbed_criss_cross.txt";
     in_cond = "Solar-System.txt";
+    in_cond = "3_body_problem.txt";
     //in_cond = "100gauss.txt";
 
     double Delta_max = pow(10, -10);
@@ -100,6 +101,8 @@ int main(){
     outfile_energy << std::setprecision(8);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
+    std::ofstream outfile_distances("temperatures/" + filename + ".txt");
+
     for (int i = 0; i <= iter; i++){
         t+= h;
 
@@ -111,7 +114,7 @@ int main(){
             functions[integrator](y, h/2);
 
             double error = compare_solutions(z, y);
-            std::cout << "For h = " << h << ", the error is " << error << std::endl;
+            //std::cout << "For h = " << h << ", the error is " << error << std::endl;
             if (error > Delta_max) {
                 h /= 2;
             } else if (error < Delta_min) {
@@ -121,6 +124,9 @@ int main(){
             functions[integrator](z, h);
         }
 
+        if (i % 10000 == 0){
+            std::cout << " i = " << i << std::endl;
+        }
 
         outfile << t;
         for (int body_number = 0; body_number < N; body_number++){
@@ -129,6 +135,12 @@ int main(){
         outfile << '\n';
         
         outfile_energy << t << ' ' << z.get_energy() << '\n';
+
+        double temperature = 0;
+        for (int body_number = 0; body_number < N-1; body_number++){
+            temperature += 1/(z.positions()[body_number] - z.positions()[3]).norm2();
+        }
+        outfile_distances << t << ' ' << pow(temperature,0.25) << '\n';
 
     }
 

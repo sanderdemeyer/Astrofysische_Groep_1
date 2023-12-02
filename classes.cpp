@@ -1,4 +1,4 @@
-#define CONSTANT_G 19.85351561
+#define CONSTANT_G 19.85351561 //39.43313022
 #define THETA 1.35120719195966
 #define XI_PEFRL 0.1786178958448091
 #define LAMBDA_PEFRL -0.2123418310626054
@@ -159,6 +159,15 @@ public:
     _masses = masses;
     }
 
+    NSystem() {
+        std::vector<Vec> positions;
+        std::vector<Vec> velocities;
+        std::vector<double> masses;
+        _positions = positions;
+        _velocities = velocities;
+        _masses = masses;
+    }
+
     friend void Forward_Euler(NSystem& y_n, double h);
     friend void RK2_step(NSystem& y_n, double h);
     friend void Heun(NSystem& y_n, double h);
@@ -274,6 +283,35 @@ std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> mass
     return gs;
 }
 
+class General_integrator{
+    private: 
+        int length;
+        std::vector<double> a_table;
+        std::vector<double> b_table;
+    public:
+        General_integrator(int _length, std::vector<double> _a_table, std::vector<double> _b_table) {
+            length = _length;
+            a_table = _a_table;
+            b_table = _b_table;
+        }
+
+    void operator()(NSystem& y_n, double h) {
+        NSystem kis [length];
+        for (int i = 0; i < length; i++) {
+            NSystem argument = y_n;
+            for (int j = 0; j < i; j++) {
+                argument += h*a_table[i*length+j]*kis[j];
+            }
+            kis[i] = argument.evaluate_g();
+        }
+        for (int i = 0; i < length; i++){
+            y_n += h*b_table[i]*kis[i];
+        }
+    }
+
+};
+
+
 void Forward_Euler(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
     y_n = y_n + k1;
@@ -325,6 +363,7 @@ void RK4_step(NSystem& y_n, double h){
     NSystem k4 = (y_n + k3).evaluate_g()*h;
     y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
+
 
 void Forest_Ruth_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + (THETA*h/2)*y_n._velocities;
