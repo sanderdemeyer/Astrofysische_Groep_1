@@ -131,6 +131,72 @@ Vec4 operator*(double s, Vec4 a) { return a *= s; }
 Vec4 operator+(Vec4 a, Vec4 b) { return a += b; }
 Vec4 operator-(Vec4 a, Vec4 b) { return a -= b; }
 
+// represents a 2-D vector
+class Vec2 {
+    double _x;
+    double _y;
+
+    public:
+    Vec2() {_x=0; _y=0;}
+    Vec2(double x, double y) { _x = x; _y = y;}
+    
+    double x() const { return _x; }
+    double y() const { return _y; }
+
+    double norm() const {return sqrt(_x*_x + _y*_y);}
+    double norm2() const {return _x*_x + _y*_y;}
+    double norm3() const {return pow(_x*_x + _y*_y, 1.5);}
+
+    friend Vec2 transform_vector_backward(Vec2 r);
+    friend Vec2 transform_vector_forward(Vec2 r);
+
+    Vec2& operator*=(double s) {
+        _x *= s;
+        _y *= s;
+        return *this;
+    }
+
+    Vec2& operator/=(double s) {
+        _x /= s;
+        _y /= s;
+        return *this;
+    }
+
+    Vec2& operator+=(Vec2 v) {
+        _x += v._x;
+        _y += v._y;
+        return *this;
+    }
+
+    Vec2& operator-=(Vec2 v) {
+        _x -= v._x;
+        _y -= v._y;
+        return *this;
+    }
+
+};
+
+Vec2 operator*(Vec2 a, double s) { return a *= s; }
+Vec2 operator/(Vec2 a, double s) { return a /= s; }
+Vec2 operator*(double s, Vec2 a) { return a *= s; }
+Vec2 operator+(Vec2 a, Vec2 b) { return a += b; }
+Vec2 operator-(Vec2 a, Vec2 b) { return a -= b; }
+
+Vec2 transform_vector_forward_2D(Vec r){
+    double expr;
+    expr = r.x() + r.norm();
+    
+    double u1 = sqrt(expr/2);
+    double u2 = r.y()/sqrt(2*expr);
+    return Vec2(u1, u2);
+}
+
+Vec transform_vector_backward_2D(Vec2 r){
+    double R1 = pow(r.x(), 2) - pow(r.y(), 2);
+    double R2 = 2*r.x()*r.y();
+    return Vec(R1, R2, 0);
+}
+
 std::vector<Vec> operator*(double s, std::vector<Vec> a){
     for (size_t i=0; i!=a.size(); ++i) {
         a[i] *= s;
@@ -513,6 +579,68 @@ Regularized_coo operator*(double s, Regularized_coo a) { return a *= s; }
 Regularized_coo operator/(Regularized_coo a, double s) { return a /= s; }
 Regularized_coo operator+(Regularized_coo a, Regularized_coo b) { return a += b; }
 
+class Regularized_coo_2D {
+
+private:
+    Vec2 _u;
+    Vec2 _v;
+    double _mu;
+
+public: 
+    Regularized_coo_2D(Vec2 u, Vec2 v, double mu){
+    _u = u;
+    _v = v;
+    _mu = mu;
+    }
+    Regularized_coo_2D(){
+        _u = Vec2(0.0, 0.0);
+        _v = Vec2(0.0, 0.0);
+        _mu = 0;
+    }
+
+    friend double Leapfrog_reg_2D(Regularized_coo_2D& y_old, double h);
+    friend double RK4_step_reg_2D(Regularized_coo_2D& y_n, double h);
+
+    Vec2 u() const { return _u; }
+    Vec2 v() const { return _v; }
+    double mu() const { return _mu; }
+
+    Regularized_coo_2D& operator*=(double s) {
+        _u *= s;
+        _v *= s;
+        return *this;
+    }
+
+    Regularized_coo_2D& operator/=(double s) {
+        _u /= s;
+        _v /= s;
+        return *this;
+    }
+
+    Regularized_coo_2D& operator+=(Regularized_coo_2D b) {
+        _u += b.u();
+        _v += b.v();
+        return *this;
+    }
+
+    double u_squared(){
+        return _u.norm2();
+    }
+
+    Regularized_coo_2D evaluate_g_reg_2D(){
+        double E = (2*_v.norm2() - _mu)/(_u.norm2());
+        Vec2 u_prime = _v;
+        Vec2 v_prime = 0.5*E*_u;
+        return Regularized_coo_2D(u_prime, v_prime, _mu);
+    }
+
+
+};
+
+Regularized_coo_2D operator*(Regularized_coo_2D a, double s) { return a *= s; }
+Regularized_coo_2D operator*(double s, Regularized_coo_2D a) { return a *= s; }
+Regularized_coo_2D operator/(Regularized_coo_2D a, double s) { return a /= s; }
+Regularized_coo_2D operator+(Regularized_coo_2D a, Regularized_coo_2D b) { return a += b; }
 
 Vec4 rotate_vec4(Vec4 u, double theta){
     double comp1 = u.x()*cos(theta);
@@ -576,6 +704,25 @@ Regularized_coo regularize_together(Vec u_old, Vec v_old, double Energy, double 
     return Regularized_coo(rotate_vec4(u_new, theta1_best), rotate_vec4(v_new, theta2_best), reduced_mass);
 }
 
+
+Regularized_coo_2D regularize_together_2D(Vec u_old, Vec v_old, double reduced_mass){
+    Vec2 u_new = transform_vector_forward_2D(u_old);
+    double v1_new = (v_old.x()*u_new.x() + v_old.y()*u_new.y())/(2*u_new.norm2());
+    double v2_new = (v_old.y()*u_new.x() - v_old.x()*u_new.y())/(2*u_new.norm2());
+
+    return Regularized_coo_2D(u_new, Vec2(v1_new, v2_new), reduced_mass);
+}
+
+Regularized_coo_2D regularize_together_2D_backward(Regularized_coo_2D reg_coo){
+    Vec R_new = transform_vector_backward_2D(reg_coo.u());
+    double V1 = 2*reg_coo.u().x()*reg_coo.v().x() - 2*reg_coo.u().y()*reg_coo.v().y();
+    double V2 = 2*reg_coo.v().x()*reg_coo.u().y() + 2*reg_coo.u().x()*reg_coo.v().y();
+
+    return Regularized_coo_2D(Vec2(R_new.x(), R_new.y()), Vec2(V1, V2), reg_coo.mu());
+}
+
+
+
 double Leapfrog_reg(Regularized_coo& y_old, double dtau){
     double E = (2*y_old._v.norm2() - y_old._mu)/y_old._u.norm2();
     std::cout << "Energy is " << E << std::endl;
@@ -596,6 +743,14 @@ double RK4_step_reg(Regularized_coo& y_n, double h){
     return y_n._u.norm();
 }
 
+double RK4_step_reg_2D(Regularized_coo_2D& y_n, double h){
+    Regularized_coo_2D k1 = y_n.evaluate_g_reg_2D() * h;
+    Regularized_coo_2D k2 = (y_n + k1*0.5).evaluate_g_reg_2D()*h;
+    Regularized_coo_2D k3 = (y_n + k2*0.5).evaluate_g_reg_2D()*h;
+    Regularized_coo_2D k4 = (y_n + k3).evaluate_g_reg_2D()*h;
+    y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
+    return y_n._u.norm();
+}
 
 Vec transform_vector_backward(Vec4 u){
     double r1 = pow(u._x, 2) - pow(u._y, 2) - pow(u._z, 2) + pow(u._a, 2);
@@ -603,6 +758,9 @@ Vec transform_vector_backward(Vec4 u){
     double r3 = 2*(u._x*u._z + u._y*u._a);
     return Vec(r1, r2, r3);
 }
+
+
+
 
 class NSystem_reg {
 
@@ -716,15 +874,124 @@ public:
     }
 };
 
-/*
-void Leapfrog_reg(NSystem_reg& y_n, double dtau){
-    if (y_n._regularized){
-        Leapfrog_friend(y_n._nsystem, dtau);
-    } else {
-        Leapfrog_friend(y_n._nsystem, dtau);
+
+class NSystem_reg_2D {
+
+private:
+    NSystem _nsystem;
+    bool _regularized;
+    Regularized_coo_2D _reg_coo;
+    std::vector<double> _initial_masses;
+
+public:
+    NSystem_reg_2D(NSystem nsystem, bool regularized, Regularized_coo_2D reg_coo, std::vector<double> initial_masses)
+    : _nsystem(nsystem), _regularized(regularized), _reg_coo(reg_coo), _initial_masses(initial_masses) {}
+
+    NSystem nsystem() const { return _nsystem; }
+    bool regularized() const { return _regularized; }
+    Regularized_coo_2D reg_coo() const { return _reg_coo; }
+    std::vector<double> initial_masses() const { return _initial_masses; }
+
+    //friend void Leapfrog_reg(NSystem_reg& y_n, double dtau);
+
+    bool check_separation(double transform_distance){
+        // only works for two bodies for the moment
+        if (_regularized){
+            return (_reg_coo.u_squared() < transform_distance);
+        } else {
+            //std::cout << "distance is " << ((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() << std::endl;
+            return (((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() < transform_distance);
+        }
     }
-}
-*/
+
+    NSystem_reg_2D transform_forward(int body1, int body2){
+        if(body1 > body2){
+            int temp = body2;
+            body2 = body1;
+            body1 = temp;
+        }
+        std::vector<Vec> pos_new = _nsystem.positions();
+        std::vector<Vec> vel_new = _nsystem.velocities();
+        std::vector<double> masses_new = _nsystem.masses();
+
+        Vec relative_pos = Vec(pos_new[body2] - pos_new[body1]);
+        Vec com_pos = Vec((masses_new[body2]*pos_new[body2] + masses_new[body1]*pos_new[body1])/(masses_new[body1]+masses_new[body2]));
+
+        Vec relative_vel = Vec(vel_new[body2] - vel_new[body1]);
+        Vec com_vel = Vec((masses_new[body2]*vel_new[body2] + masses_new[body1]*vel_new[body1])/(masses_new[body1]+masses_new[body2]));
+
+        double joint_mass = masses_new[body2] + masses_new[body1];
+        double reduced_mass = 1/(1/masses_new[body2] + 1/masses_new[body1]);
+
+        std::vector<double> masses_old;
+        masses_old.push_back(masses_new[body1]);
+        masses_old.push_back(masses_new[body2]);
+
+        pos_new.erase(pos_new.begin() + body2);
+        vel_new.erase(vel_new.begin() + body2);
+        masses_new.erase(masses_new.begin() + body2);
+
+        pos_new.erase(pos_new.begin() + body1);
+        vel_new.erase(vel_new.begin() + body1);
+        masses_new.erase(masses_new.begin() + body1);
+
+        pos_new.push_back(com_pos);
+        vel_new.push_back(com_vel);
+        masses_new.push_back(joint_mass);
+
+        //Regularized_coo_2D reg_coo = Regularized_coo_2D(transform_vector_forward_2D(relative_pos), transform_vector_forward_2D(relative_vel), reduced_mass);
+        Regularized_coo_2D reg_coo = regularize_together_2D(relative_pos, relative_vel, reduced_mass);
+
+        return NSystem_reg_2D(NSystem(pos_new, vel_new, masses_new), true, reg_coo, masses_old);
+        //return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(transform_vector_forward(relative_pos), transform_vector_forward(relative_vel), reduced_mass), masses_old);
+    }
+    
+    
+    NSystem_reg_2D transform_backward(){
+        std::vector<Vec> pos_new = _nsystem.positions();
+        std::vector<Vec> vel_new = _nsystem.velocities();
+        std::vector<double> masses_new = _nsystem.masses();
+
+        Vec R_com = pos_new.back();
+        Vec V_com = vel_new.back();
+        Regularized_coo_2D backwards_transformed = regularize_together_2D_backward(_reg_coo);
+        Vec R_relative = Vec(backwards_transformed.u().x(), backwards_transformed.u().y(), 0);
+        Vec V_relative = Vec(backwards_transformed.v().x(), backwards_transformed.v().y(), 0);
+
+        //Vec R_relative = transform_vector_backward_2D(_reg_coo.u());
+        //Vec V_relative = transform_vector_backward_2D(_reg_coo.v());
+
+        double sum_masses = _initial_masses[0] + _initial_masses[1];
+        Vec R1 = R_com - _initial_masses[1]*R_relative/sum_masses;
+        Vec R2 = R1 + R_relative;
+        Vec V1 = V_com - _initial_masses[1]*V_relative/sum_masses;
+        Vec V2 = V1 + V_relative;
+
+        pos_new.pop_back();
+        vel_new.pop_back();
+        masses_new.pop_back();
+        pos_new.push_back(R1);
+        pos_new.push_back(R2);
+        vel_new.push_back(V1);
+        vel_new.push_back(V2);
+        masses_new.push_back(_initial_masses[0]);
+        masses_new.push_back(_initial_masses[1]);
+
+        return NSystem_reg_2D(NSystem(pos_new, vel_new, masses_new), false, _reg_coo, _initial_masses);
+    }
+
+    void timestep(double dtau){
+        if (_regularized){
+            double u_squared = RK4_step_reg_2D(_reg_coo, dtau);
+            Yoshida_4_friend(_nsystem, dtau*u_squared);
+            //Yoshida_4_friend(_nsystem, dtau);
+            std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
+        } else {
+            Yoshida_4_friend(_nsystem, dtau);
+        }
+    }
+};
+
 
 void Yoshida_4_new(std::vector<Vec>& x, std::vector<Vec>& v, std::vector<double> masses, double h){
     x = x + (YOSHIDA_W1/2)*h*v;

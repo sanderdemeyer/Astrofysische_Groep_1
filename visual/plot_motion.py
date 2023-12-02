@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #data = np.loadtxt("traj/3_body_problem_RK4_500000_0.001000_adaptive.txt", unpack=True)
 #data = np.loadtxt("traj/3_body_RK4.txt", unpack=True)
 #data = np.loadtxt("two_body_motion_RK4.txt", unpack = True)
-data = np.loadtxt("traj/two-body-3D_RK4_2500000_0.001000_adaptive.txt", unpack = True)
+data = np.loadtxt("traj/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = True)
 data = np.array(data)
 
 print(np.shape(data))
