@@ -113,7 +113,7 @@ int main(){
     double dtau = h/transform_distance;
     Vec u, r;
 
-    for (int i = 0; i < 10000; i++){ // 5540
+    for (int i = 0; i < 20000; i++){ // 5540
         bool should_be_regularized = z.check_separation(transform_distance);
         should_be_regularized = (i < 6500) && (i > 5500);
 
