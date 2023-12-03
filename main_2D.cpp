@@ -69,7 +69,7 @@ int main(){
     // in_cond = "perturbed_criss_cross.txt";
     in_cond = "Solar-System.txt";
     in_cond = "3_body_problem.txt";
-    in_cond = "two-body.txt";
+    in_cond = "Burrau.txt";
     //in_cond = "100gauss.txt";
 
     double Delta_max = pow(10, -10);
@@ -109,13 +109,15 @@ int main(){
     outfile_energy << t << ' ' << z.nsystem().get_energy() << '\n';
 
     bool regularized = false;
-    double transform_distance = 0.9;
+    bool should_be_regularized;
+    double transform_distance = 0.7;
     double dtau = h/transform_distance;
     Vec u, r;
 
-    for (int i = 0; i < 20000; i++){ // 5540
-        bool should_be_regularized = z.check_separation(transform_distance);
-        should_be_regularized = (i < 6500) && (i > 5500);
+    for (int i = 0; i < 100000; i++){ // 5540
+        should_be_regularized = z.check_separation(transform_distance);
+        //should_be_regularized = (i < 6003) && (i > 5997);
+        //should_be_regularized = false;
 
         if (should_be_regularized && (!regularized)){
             std::cout << "Forward for i = " << i << std::endl;
@@ -130,9 +132,26 @@ int main(){
         //z = RK4_step(z, h);
         //Yoshida_4_new(x, v, masses, h);
         //PEFRL_friend(z, h);
-        z.timestep(h);
         //RK4_step(z, h);
         //Yoshida_friend(z, h);
+        if ((ADAPTIVE_TIME_STEP) && (!regularized)) {
+            NSystem_reg_2D y = z;
+
+            z.timestep(h, dtau);
+            y.timestep(h/2, dtau);
+            y.timestep(h/2, dtau);
+
+            double error = compare_solutions(z, y);
+            //std::cout << "For h = " << h << ", the error is " << error << std::endl;
+            if (error > Delta_max) {
+                h /= 2;
+            } else if (error < Delta_min) {
+                h *= 2;
+            }
+        } else {
+            z.timestep(h, dtau);
+        }
+
 
         if (!regularized){
             outfile << i;
@@ -144,7 +163,7 @@ int main(){
             outfile << '\n';
             
             outfile_energy << z.nsystem().get_energy() << '\n';
-        }
+        } 
 
         if (i % 1000 == 0){
             std::cout << regularized << should_be_regularized << z.nsystem().positions().size() << std::endl;

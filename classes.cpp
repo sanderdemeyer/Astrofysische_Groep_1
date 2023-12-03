@@ -707,16 +707,18 @@ Regularized_coo regularize_together(Vec u_old, Vec v_old, double Energy, double 
 
 Regularized_coo_2D regularize_together_2D(Vec u_old, Vec v_old, double reduced_mass){
     Vec2 u_new = transform_vector_forward_2D(u_old);
-    double v1_new = (v_old.x()*u_new.x() + v_old.y()*u_new.y())/(2*u_new.norm2());
-    double v2_new = (v_old.y()*u_new.x() - v_old.x()*u_new.y())/(2*u_new.norm2());
+    std::cout << "usquared is " << u_new.norm2() << std::endl;
+    double v1_new = (v_old.x()*u_new.x() + v_old.y()*u_new.y())/(2*u_new.norm2());//*u_new.norm2();
+    double v2_new = (v_old.y()*u_new.x() - v_old.x()*u_new.y())/(2*u_new.norm2());//*u_new.norm2();
 
     return Regularized_coo_2D(u_new, Vec2(v1_new, v2_new), reduced_mass);
 }
 
 Regularized_coo_2D regularize_together_2D_backward(Regularized_coo_2D reg_coo){
     Vec R_new = transform_vector_backward_2D(reg_coo.u());
-    double V1 = 2*reg_coo.u().x()*reg_coo.v().x() - 2*reg_coo.u().y()*reg_coo.v().y();
-    double V2 = 2*reg_coo.v().x()*reg_coo.u().y() + 2*reg_coo.u().x()*reg_coo.v().y();
+    std::cout << "usquared is " << reg_coo.u().norm2() << std::endl;
+    double V1 = (2*reg_coo.u().x()*reg_coo.v().x() - 2*reg_coo.u().y()*reg_coo.v().y());///reg_coo.u().norm2();
+    double V2 = (2*reg_coo.v().x()*reg_coo.u().y() + 2*reg_coo.u().x()*reg_coo.v().y());///reg_coo.u().norm2();
 
     return Regularized_coo_2D(Vec2(R_new.x(), R_new.y()), Vec2(V1, V2), reg_coo.mu());
 }
@@ -749,7 +751,7 @@ double RK4_step_reg_2D(Regularized_coo_2D& y_n, double h){
     Regularized_coo_2D k3 = (y_n + k2*0.5).evaluate_g_reg_2D()*h;
     Regularized_coo_2D k4 = (y_n + k3).evaluate_g_reg_2D()*h;
     y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
-    return y_n._u.norm();
+    return y_n._u.norm2();
 }
 
 Vec transform_vector_backward(Vec4 u){
@@ -865,7 +867,7 @@ public:
     void timestep(double dtau){
         if (_regularized){
             double u_squared = RK4_step_reg(_reg_coo, dtau);
-            Yoshida_4_friend(_nsystem, dtau*u_squared*1);
+            Yoshida_4_friend(_nsystem, dtau*u_squared);
             //Yoshida_4_friend(_nsystem, dtau);
             std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
         } else {
@@ -980,14 +982,14 @@ public:
         return NSystem_reg_2D(NSystem(pos_new, vel_new, masses_new), false, _reg_coo, _initial_masses);
     }
 
-    void timestep(double dtau){
+    void timestep(double h, double dtau){
         if (_regularized){
             double u_squared = RK4_step_reg_2D(_reg_coo, dtau);
             Yoshida_4_friend(_nsystem, dtau*u_squared);
             //Yoshida_4_friend(_nsystem, dtau);
             std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
         } else {
-            Yoshida_4_friend(_nsystem, dtau);
+            Yoshida_4_friend(_nsystem, h);
         }
     }
 };
@@ -1003,3 +1005,11 @@ void Yoshida_4_new(std::vector<Vec>& x, std::vector<Vec>& v, std::vector<double>
     x = x + (YOSHIDA_W1/2)*h*v;
 }
 
+double compare_solutions(NSystem_reg_2D a, NSystem_reg_2D b){
+    double error = 0;
+    for (int i = 0; i < a.nsystem().positions().size(); i++){
+        error += (a.nsystem().positions()[i] - b.nsystem().positions()[i]).norm2();
+        error += (a.nsystem().velocities()[i] - b.nsystem().velocities()[i]).norm2();
+    }
+    return sqrt(error);
+}
