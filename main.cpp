@@ -68,9 +68,9 @@ int main(){
 
     h = 0.001;
     // iter = 50000;
-    tmax = 2;
+    tmax = 100;
     integrator = "RK4";
-    in_cond = "Earth-orbit-w-moon.txt";
+    in_cond = "rings.txt";
     ADAPTIVE_TIME_STEP = false;
 
     double Delta_max = pow(10, -10);

@@ -105,9 +105,9 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
-        if label:
+        if label!= None:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-        fig.set_tight_layout(True)
+            fig.set_tight_layout(True)
         if line:
             x = np.zeros((N, n_t_org))
             y = np.zeros((N, n_t_org))
@@ -134,9 +134,9 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
         ax.set_ylabel("y [AU]")
         ax.set_zlabel("z [AU]")
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], traj[0][i][2], s=2) for i in range(N)]
-        if label:
+        if label!= None:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-        fig.set_tight_layout(True)
+            fig.set_tight_layout(True)
         if line:
             x = np.zeros((N, n_t_org))
             y = np.zeros((N, n_t_org))
@@ -175,9 +175,9 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
                 for i in range(N):
                     ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
             ax.grid(False)
-            if label:
+            if label!= None:
                 ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-            fig.set_tight_layout(True)
+                fig.set_tight_layout(True)
             ani = animation.FuncAnimation(fig, update_2, frames=n_t)
             ani.save('{}/ani_traj/{}_projection.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
@@ -230,8 +230,9 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
         ax.set_ylabel("y [AU]")
         for i in range(N):
             ax.plot(x[i],y[i], linewidth=0.5)
-        if label:
+        if label!= None:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+            fig.set_tight_layout(True)
         ax.grid(False)
         plt.savefig('{}/plot_traj/{}_2D.png'.format(directory,name), dpi=dpi, bbox_inches='tight')
 
@@ -258,11 +259,12 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
         for i in range(N):
             ax.plot(x[i],y[i], z[i], linewidth=0.5)
         ax.grid(False)
-        if label:
-            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
         ax.xaxis.pane.fill = False
         ax.yaxis.pane.fill = False
         ax.zaxis.pane.fill = False
+        if label != None:
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+            fig.set_tight_layout(True)
         plt.savefig('{}/plot_traj/{}_3D.png'.format(directory,name), dpi=dpi, bbox_inches='tight')
         
         if project:
@@ -272,6 +274,8 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
                 for j in range(n_t):
                     x[i][j] = traj[j][i][0]
                     y[i][j] = traj[j][i][1]
+            ax.clear()
+            ax.remove()
             ax = fig.add_subplot(111)
             ax.set_title('N={}, '.format(N) + title)
             x_all = x.flatten()
@@ -283,6 +287,9 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
             for i in range(N):
                 ax.plot(x[i],y[i], linewidth=0.5)
             ax.grid(False)
+            if label != None:
+                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+                fig.set_tight_layout(True)
             plt.savefig('{}/plot_traj/{}_projection.png'.format(directory,name), dpi=dpi, bbox_inches='tight')
     plt.show()
 
@@ -303,14 +310,14 @@ if type_plot == 'animate':
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'Earth-orbit-w-moon_RK4_2.000000_0.001000.txt'
+integrator = 'rings_RK4_100.000000_0.001000.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection
 project = True
 ## labels if needed, otherwise set to False
-label = ['Sun', 'Earth', 'Moon']
+label = None
 
 # for animation
 ## plot trajectorires in animation
