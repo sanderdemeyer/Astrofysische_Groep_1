@@ -43,7 +43,7 @@ def trajectories(file, dim):
             ind_traj[i][j]= part_traj[j]
     return t, ind_traj
 
-def animate(file, dim, tstep, title, line=False, project=False, name='animation', dpi=300):
+def animate(file, dim, tstep, title, line=False, project=False, label=None, name='animation', dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and animates the trajectories of the particles.
     
@@ -62,6 +62,8 @@ def animate(file, dim, tstep, title, line=False, project=False, name='animation'
         Whether or not to plot the lines
     project
         Whether or not to plot a 2D projection
+    label
+        Labels of the bodies
     name
         Name of the animation file
     dpi
@@ -103,6 +105,9 @@ def animate(file, dim, tstep, title, line=False, project=False, name='animation'
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
+        if label:
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+        fig.set_tight_layout(True)
         if line:
             x = np.zeros((N, n_t_org))
             y = np.zeros((N, n_t_org))
@@ -129,6 +134,9 @@ def animate(file, dim, tstep, title, line=False, project=False, name='animation'
         ax.set_ylabel("y [AU]")
         ax.set_zlabel("z [AU]")
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], traj[0][i][2], s=2) for i in range(N)]
+        if label:
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+        fig.set_tight_layout(True)
         if line:
             x = np.zeros((N, n_t_org))
             y = np.zeros((N, n_t_org))
@@ -146,6 +154,8 @@ def animate(file, dim, tstep, title, line=False, project=False, name='animation'
         ani = animation.FuncAnimation(fig, update_3, frames=n_t)
         ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
         if project:
+            ax.clear()
+            ax.remove()
             ax = fig.add_subplot(111)
             ax.set_title('N={}, '.format(N) + title)
             x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
@@ -165,6 +175,9 @@ def animate(file, dim, tstep, title, line=False, project=False, name='animation'
                 for i in range(N):
                     ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
             ax.grid(False)
+            if label:
+                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+            fig.set_tight_layout(True)
             ani = animation.FuncAnimation(fig, update_2, frames=n_t)
             ani.save('{}/ani_traj/{}_projection.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
@@ -287,23 +300,27 @@ if type_plot == 'animate':
         line = False
 '''
 
+# Here the parameters can be changed
+# ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'Solar-System-wo-mercury-moon_RK4_200.000000_0.010000.txt'
-type_plot = 'animate'
+integrator = 'Earth-orbit-w-moon_RK4_2.000000_0.001000.txt'
+type_plot = 'plot'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection
 project = True
 ## labels if needed, otherwise set to False
-label = ['Sun', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
+label = ['Sun', 'Earth', 'Moon']
 
 # for animation
 ## plot trajectorires in animation
 line = True
-## timescale of the animateion: how much should one second of animation be in simuulation time
-tstep = 0.5
+## timescale of the animation: how much should one second of animation be in simuulation time
+tstep = 0.05
 
 
+# DO NOT CHANGE ANYTHING UNDER THIS
+# ----------------------------------------------------------------------------
 name = integrator.rstrip('.txt')
 args = name.split('_')
 title = "{} integrated using {} \n tmax= {}, h= {}".format(args[0], args[1], args[2], args[3])
@@ -316,7 +333,7 @@ if type_plot == 'animate':
     #tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     if line:
         filename += '_with_traj'
-    animate(integrator, dim, tstep, title=title, line= True, project= True, name= filename)
+    animate(integrator, dim, tstep, title=title, line= True, project= project,label=label, name= filename)
     
 elif type_plot == 'plot':
     plot(integrator, dim, title=title, project=project, name= filename, label=label)
@@ -325,5 +342,5 @@ elif type_plot == 'both':
     #tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     if line:
         filename += '_with_traj'
-    animate(integrator, dim, tstep, title=title, line=True, name= filename)
+    animate(integrator, dim, tstep, title=title, line=True, project= project,label=label, name= filename)
     plot(integrator, dim, title=title, project=project, name= filename.rstrip('_with_traj'), label=label)

@@ -43,7 +43,7 @@ int main(){
     std::string in_cond;
     std::string integrator;
     double h;
-    int iter;
+    // int iter;
     double tmax;
     double t = 0;
     bool ADAPTIVE_TIME_STEP
@@ -66,11 +66,11 @@ int main(){
     std::cin >> iter;
     */
 
-    h = 0.01;
-    iter = 50000;
-    tmax = 200;
+    h = 0.001;
+    // iter = 50000;
+    tmax = 2;
     integrator = "RK4";
-    in_cond = "Solar-System-wo-mercury-moon.txt";
+    in_cond = "Earth-orbit-w-moon.txt";
     ADAPTIVE_TIME_STEP = false;
 
     double Delta_max = pow(10, -10);
