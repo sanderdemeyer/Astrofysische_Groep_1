@@ -44,4 +44,4 @@ Give the number of iterations.
 
 ### Output
 The trajectories are stored in the **`traj`** folder and the energies are stored in the **`energy`** folder. The naming convention is:
-*SystemName_integrator_iterations_h(_adaptive).txt*
+*SystemName_integrator_tmax_h(_adaptive).txt*

@@ -95,7 +95,7 @@ int main(){
         filename += "_adaptive";
     }
 
-    std::ofstream outfile("traj/" + filename + ".txt");
+    std::ofstream outfile("traj_reg/" + filename + ".txt");
     outfile << std::setprecision(8);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
@@ -104,7 +104,7 @@ int main(){
         outfile << '\n';
 
 
-    std::ofstream outfile_energy("energy/" + filename + ".txt");
+    std::ofstream outfile_energy("energy_reg/" + filename + ".txt");
     outfile_energy << std::setprecision(8);
     outfile_energy << t << ' ' << z.nsystem().get_energy() << '\n';
 
