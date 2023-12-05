@@ -7,6 +7,8 @@
 #define YOSHIDA_W1 1.351207192
 #define EPSILON 0.001
 
+#include <string.h>
+
 // represents a 3-D vector
 class Vec {
     double _x;
@@ -359,6 +361,20 @@ class General_integrator{
             length = _length;
             a_table = _a_table;
             b_table = _b_table;
+        }
+
+        General_integrator(const char* integr) {
+            if (strcmp(integr, "RK4")) {
+                a_table = {0.0,0.0,0.0,0.0 , 0.5,0.0,0.0,0.0 , 0.0,0.5,0.0,0.0 , 0.0,0.0,1.0,0.0};
+                b_table = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
+                length = 4;
+            } else if (strcmp(integr, "RK6")) {
+                a_table = {0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/3,0.0,0.0,0.0,0.0,0.0,0.0 , 0.0,2.0/3,0.0,0.0,0.0,0.0,0.0,
+                            1.0/12,1.0/3,-1.0/12,0.0,0.0,0.0,0.0 , -1.0/16,9.0/8,-3.0/16,-3.0/8,0.0,0.0,0.0 , 0.0,9.0/8,-3.0/8,-3.0/4,1.0/2,0.0,0.0,
+                            9.0/44,-9.0/11,63.0/44,18.0/11,0.0,-16.0/11,0.0};
+                b_table = {11.0/120, 0.0, 27.0/40, 27.0/40, -4.0/15, -4.0/15, 11.0/120};
+                length = 7;
+            }
         }
 
     void operator()(NSystem& y_n, double h) {

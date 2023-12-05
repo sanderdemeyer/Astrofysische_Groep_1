@@ -26,13 +26,15 @@ int main(){
 
 
     //std::vector<double> a_table = {0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.0,1.0,0.0};
-    std::vector<double> a_table = {0.0,0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.0,1.0};
+    //std::vector<double> a_table = {0.0,0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.0,0.5,0.0,0.0,0.0,0.0,1.0};
+    std::vector<double> a_table = {0.0,0.0,0.0,0.0 , 0.5,0.0,0.0,0.0 , 0.0,0.5,0.0,0.0 , 0.0,0.0,1.0,0.0};
     std::vector<double> b_table = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
     //double** a_table[4][4] = {{0.0,0.0,0.0,0.0},{0.0,0.5,0.0,0.0},{0.0,0.0,0.5,0.0},{0.0,0.0,0.0,1.0}};
     //double* b_table[4] = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
     //double* a_table_ptr[4] = {a_table[0], a_table[1], a_table[2], a_table[3]};
 
-    General_integrator integrator_function = General_integrator(4, a_table, b_table);
+    //General_integrator integrator_function = General_integrator(4, a_table, b_table);
+    General_integrator integrator_function = General_integrator("RK6");
 
     std::unordered_map<std::string, integ> functions ={
         {"Forward Euler", Forward_Euler},
@@ -77,14 +79,15 @@ int main(){
     */
 
     h = 0.001;
-    iter = 2500000;
+    iter = 50000;
     integrator = "RK4";
     // in_cond = "perturbed_criss_cross.txt";
     in_cond = "Solar-System.txt";
     in_cond = "two-body-3D.txt";
+    in_cond = "lemniscate.txt";
     //in_cond = "100gauss.txt";
 
-    //integ integrator_function = functions[integrator];
+    // integ integrator_function = functions[integrator];
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -15);

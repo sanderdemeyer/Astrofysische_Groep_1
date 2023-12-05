@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = True)
 data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = True)
 data = np.loadtxt("traj_reg/Reg_2D_Burrau_RK4_2500000_0.001000.txt", unpack = True)
+data = np.loadtxt("traj/lemniscate_RK4_50000_0.001000_adaptive.txt", unpack=True)
 #data = np.loadtxt("traj/two-body_RK4_2500000_0.001000_adaptive.txt", unpack = True)
 data = np.array(data)
 
