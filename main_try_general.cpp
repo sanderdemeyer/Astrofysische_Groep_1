@@ -34,7 +34,7 @@ int main(){
     //double* a_table_ptr[4] = {a_table[0], a_table[1], a_table[2], a_table[3]};
 
     //General_integrator integrator_function = General_integrator(4, a_table, b_table);
-    General_integrator integrator_function = General_integrator("RK6");
+    General_integrator integrator_function = General_integrator("Ralston4");
 
     std::unordered_map<std::string, integ> functions ={
         {"Forward Euler", Forward_Euler},
@@ -79,7 +79,7 @@ int main(){
     */
 
     h = 0.001;
-    iter = 50000;
+    iter = 1000000;
     integrator = "RK4";
     // in_cond = "perturbed_criss_cross.txt";
     in_cond = "Solar-System.txt";
