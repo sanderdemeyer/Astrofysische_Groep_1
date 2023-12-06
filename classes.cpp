@@ -9,6 +9,8 @@
 
 #include <string.h>
 #include <assert.h>
+#include <vector>
+#include <algorithm>
 
 // represents a 3-D vector
 class Vec {
@@ -1082,3 +1084,25 @@ class General_integrator{
     }
 
 };
+
+
+int get_driver_evaluations(std::string integrator) {
+    std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
+    std::vector<std::string> driver_evaluations_2 = {"RK2_step", "Heun", "Ralston", "Velocity Verlet"};
+    std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3_step", "Forest Ruth", "Yoshida_4", "Wray3", "SSPRK3"};
+    std::vector<std::string> driver_evaluations_4 = {"RK4", "PEFRL_friend", "3_over_8", "Ralston4"};
+    std::vector<std::string> driver_evaluations_7 = {"RK6"};
+
+    if (std::find(driver_evaluations_1.begin(), driver_evaluations_1.end(), integrator) != driver_evaluations_1.end()) {
+        return 1;
+    } else if (std::find(driver_evaluations_2.begin(), driver_evaluations_2.end(), integrator) != driver_evaluations_2.end()) {
+        return 2;
+    } else if (std::find(driver_evaluations_3.begin(), driver_evaluations_3.end(), integrator) != driver_evaluations_3.end()) {
+        return 3;
+    } else if (std::find(driver_evaluations_4.begin(), driver_evaluations_4.end(), integrator) != driver_evaluations_4.end()) {
+        return 4;
+    } else if (std::find(driver_evaluations_7.begin(), driver_evaluations_7.end(), integrator) != driver_evaluations_7.end()) {
+        return 7;
+    }
+}
+

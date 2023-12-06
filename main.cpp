@@ -12,6 +12,7 @@
 #include <map>
 #include <cassert>
 #include <filesystem>
+#include <algorithm>
 
 #include "classes.cpp"
 
@@ -24,21 +25,23 @@ int main(){
 
     // Each new integrator must be added to this map
     std::unordered_map<std::string, integ> functions ={
-        {"Forward Euler", Forward_Euler},
-        {"RK2", RK2_step},
-        {"Heun", Heun},
-        {"Heun3", Heun3},
-        {"Ralston", Ralston},
-        {"Ralston3", Ralston3},
-        {"RK3", RK3_step},
-        {"RK4", RK4_step},
-        {"Forest Ruth", Forest_Ruth_friend},
-        {"PEFRL", PEFRL_friend},
-        {"Velocity Verlet", Velocity_Verlet_friend},
-        {"Position Verlet", Position_Verlet_friend},
-        {"Leapfrog", Leapfrog_friend},
-        {"Yoshida_4", Yoshida_4_friend}
+        {"Forward Euler", Forward_Euler}, // 1 driver evaluation
+        {"RK2", RK2_step}, // 2 driver evaluations
+        {"Heun", Heun}, // 2 driver evaluations
+        {"Heun3", Heun3}, // 3 driver evaluations
+        {"Ralston", Ralston}, // 2 driver evaluations
+        {"Ralston3", Ralston3}, // 3 driver evaluations
+        {"RK3", RK3_step}, // 3 driver evaluations
+        {"RK4", RK4_step}, // 4 driver evaluations
+        {"Forest Ruth", Forest_Ruth_friend}, // 3 driver evaluations
+        {"PEFRL", PEFRL_friend}, // 4 driver evaluations
+        {"Velocity Verlet", Velocity_Verlet_friend}, // 2 driver evaluations
+        {"Position Verlet", Position_Verlet_friend}, // 1 driver evaluation
+        {"Leapfrog", Leapfrog_friend}, // 1 driver evaluation
+        {"Yoshida_4", Yoshida_4_friend} // 3 driver evaluations
     };
+
+    std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
 
     std::string in_cond;
     std::string integrator;
@@ -108,8 +111,13 @@ int main(){
     integ integrator_function = functions[integrator];
     // General_integrator integrator_function = General_integrator(integrator);
 
+    int number_of_iterations;
+    int driver_evaluations = get_driver_evaluations(integrator);
+    std::cout << "Number of driver evaluations per time step is " << driver_evaluations << std::endl;
+
     while(t < tmax){
         t+= h;
+        number_of_iterations++;
 
         if (ADAPTIVE_TIME_STEP){
             NSystem y = z;
@@ -148,6 +156,7 @@ int main(){
     /*
     for (int i = 0; i <= iter; i++){
         t+= h;
+        number_of_iterations++;
 
         if (ADAPTIVE_TIME_STEP){
             NSystem y = z;
@@ -192,5 +201,7 @@ int main(){
     std::cout << "Run Done" << std::endl;
     int time_diff = time_stop - time_start;
     std::cout << "Run Time = " << time_diff << " seconds" << std::endl;
+    std::cout << "Total number of driver evaluations per time step is \n" << number_of_iterations << " iterations with " << driver_evaluations << " driver evaluations per time step gives " << driver_evaluations*number_of_iterations << " driver evaluations in total." << std::endl;
+
     return 1;
 }
