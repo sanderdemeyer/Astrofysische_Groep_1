@@ -16,6 +16,7 @@ data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = 
 data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = True)
 data = np.loadtxt("traj_reg/Reg_2D_Burrau_RK4_2500000_0.001000.txt", unpack = True)
 data = np.loadtxt("traj/lemniscate_RK4_1000000_0.001000_adaptive.txt", unpack=True)
+data = np.loadtxt("traj/rings_RK4_100.000000_0.001000.txt", unpack = True)
 #data = np.loadtxt("traj/two-body_RK4_2500000_0.001000_adaptive.txt", unpack = True)
 data = np.array(data)
 

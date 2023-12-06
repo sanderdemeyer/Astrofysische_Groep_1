@@ -1064,10 +1064,19 @@ class General_integrator{
                 a_table = {0.0,0.0,0.0,0.0 , 0.4,0.0,0.0,0.0 , 0.29697761,0.15875964,0.0,0.0 , 0.21810040,-3.05096516,3.83286476,0.0};
                 b_table = {0.17476028,-0.55148066,0.120553560,0.17118478};
                 length = 4;
+            } else if (integr.compare("RK8") == 0) {
+                a_table = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 4.0/27,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/18,3.0/18,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+                            1.0/12,0.0,3.0/12,0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/8,0.0,0.0,3.0/8,0.0,0.0,0.0,0.0,0.0,0.0 , 13.0/54,0.0,-27.0/54,42.0/54,8.0/54,0.0,0.0,0.0,0.0,0.0,
+                            389.0/4320,0.0,-54.0/4320,966.0/4320,-824.0/4320,243.0/4320,0.0,0.0,0.0,0.0 , -234.0/20,0.0,81.0/20,-1164.0/20,656.0/20,-122.0/20,800.0/20,0.0,0.0,0.0 , -127.0/288,0.0,18.0/288,-678.0/288,456.0/288,-9.0/288,576.0/288,4.0/288,0.0,0.0,
+                            1481.0/820,0.0,-81.0/820,7104.0/820,-3376.0/820,72.0/820,-5040.0/820,-60.0/820,720.0/820,0.0};
+                b_table = {41.0/840,0.0,0.0,27.0/840,272.0/840,27.0/840,216.0/840,0.0,216.0/840,41.0/840};
+                std::cout << "a_table = " << a_table.size() << std::endl;
+                std::cout << "b_table = " << b_table.size() << std::endl;
+                length = 10;
             } else {
                 assert(0 == 1);
             }
-        }
+        } // https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/99611d53-5ab6-45bc-8743-1e1080025f83/36a3fccd-1914-485e-bb6d-1d30fcb7e387/images/screenshot.png
 
     void operator()(NSystem& y_n, double h) {
         NSystem kis [length];
@@ -1082,7 +1091,6 @@ class General_integrator{
             y_n += h*b_table[i]*kis[i];
         }
     }
-
 };
 
 
@@ -1092,6 +1100,7 @@ int get_driver_evaluations(std::string integrator) {
     std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3_step", "Forest Ruth", "Yoshida_4", "Wray3", "SSPRK3"};
     std::vector<std::string> driver_evaluations_4 = {"RK4", "PEFRL_friend", "3_over_8", "Ralston4"};
     std::vector<std::string> driver_evaluations_7 = {"RK6"};
+    std::vector<std::string> driver_evaluations_10 = {"RK8"};
 
     if (std::find(driver_evaluations_1.begin(), driver_evaluations_1.end(), integrator) != driver_evaluations_1.end()) {
         return 1;
@@ -1103,6 +1112,10 @@ int get_driver_evaluations(std::string integrator) {
         return 4;
     } else if (std::find(driver_evaluations_7.begin(), driver_evaluations_7.end(), integrator) != driver_evaluations_7.end()) {
         return 7;
+    } else if (std::find(driver_evaluations_10.begin(), driver_evaluations_10.end(), integrator) != driver_evaluations_10.end()) {
+        return 7;
+    } else {
+        return -1;
     }
 }
 

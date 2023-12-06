@@ -72,7 +72,7 @@ int main(){
     h = 0.001;
     // iter = 50000;
     tmax = 100;
-    integrator = "RK4";
+    integrator = "RK8";
     in_cond = "rings.txt";
     ADAPTIVE_TIME_STEP = false;
 
@@ -108,10 +108,10 @@ int main(){
 
     std::ofstream outfile_distances("temperatures/" + filename + ".txt");
 
-    integ integrator_function = functions[integrator];
-    // General_integrator integrator_function = General_integrator(integrator);
+    // integ integrator_function = functions[integrator];
+    General_integrator integrator_function = General_integrator(integrator);
 
-    int number_of_iterations;
+    int number_of_iterations = 0;
     int driver_evaluations = get_driver_evaluations(integrator);
     std::cout << "Number of driver evaluations per time step is " << driver_evaluations << std::endl;
 
@@ -150,6 +150,10 @@ int main(){
             temperature += 1/(z.positions()[body_number] - z.positions()[3]).norm2();
         }
         outfile_distances << t << ' ' << pow(temperature,0.25) << '\n';
+
+        if (number_of_iterations % 1000 == 0){
+            std::cout << "iterations = " << number_of_iterations << ", t = " << t << std::endl;
+        }
 
     };
     

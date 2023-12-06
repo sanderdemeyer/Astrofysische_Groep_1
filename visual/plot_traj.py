@@ -310,7 +310,7 @@ if type_plot == 'animate':
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'rings_RK4_100.000000_0.001000.txt'
+integrator = 'rings_RK8_100.000000_0.001000.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3
