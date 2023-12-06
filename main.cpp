@@ -105,15 +105,18 @@ int main(){
 
     std::ofstream outfile_distances("temperatures/" + filename + ".txt");
 
+    integ integrator_function = functions[integrator];
+    // General_integrator integrator_function = General_integrator(integrator);
+
     while(t < tmax){
         t+= h;
 
         if (ADAPTIVE_TIME_STEP){
             NSystem y = z;
 
-            functions[integrator](z, h);
-            functions[integrator](y, h/2);
-            functions[integrator](y, h/2);
+            integrator_function(z, h);
+            integrator_function(y, h/2);
+            integrator_function(y, h/2);
 
             double error = compare_solutions(z, y);
             //std::cout << "For h = " << h << ", the error is " << error << std::endl;
@@ -123,7 +126,7 @@ int main(){
                 h *= 2;
             }
         } else {
-            functions[integrator](z, h);
+            integrator_function(z, h);
         }
 
         outfile << t;
@@ -149,9 +152,9 @@ int main(){
         if (ADAPTIVE_TIME_STEP){
             NSystem y = z;
 
-            functions[integrator](z, h);
-            functions[integrator](y, h/2);
-            functions[integrator](y, h/2);
+            integrator_function(z, h);
+            integrator_function(y, h/2);
+            integrator_function(y, h/2);
 
             double error = compare_solutions(z, y);
             //std::cout << "For h = " << h << ", the error is " << error << std::endl;
@@ -161,7 +164,7 @@ int main(){
                 h *= 2;
             }
         } else {
-            functions[integrator](z, h);
+            integrator_function(z, h);
         }
 
         if (i % 10000 == 0){

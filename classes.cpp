@@ -352,67 +352,6 @@ std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> mass
     return gs;
 }
 
-class General_integrator{
-    private: 
-        int length;
-        std::vector<double> a_table;
-        std::vector<double> b_table;
-    public:
-        General_integrator(int _length, std::vector<double> _a_table, std::vector<double> _b_table) {
-            length = _length;
-            a_table = _a_table;
-            b_table = _b_table;
-        }
-
-        General_integrator(const char* integr) {
-            std::cout << integr << std::endl;
-            if (!strcmp(integr, "RK4")) {
-                a_table = {0.0,0.0,0.0,0.0 , 0.5,0.0,0.0,0.0 , 0.0,0.5,0.0,0.0 , 0.0,0.0,1.0,0.0};
-                b_table = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
-                length = 4;
-            } else if (!strcmp(integr, "RK6")) {
-                a_table = {0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/3,0.0,0.0,0.0,0.0,0.0,0.0 , 0.0,2.0/3,0.0,0.0,0.0,0.0,0.0,
-                            1.0/12,1.0/3,-1.0/12,0.0,0.0,0.0,0.0 , -1.0/16,9.0/8,-3.0/16,-3.0/8,0.0,0.0,0.0 , 0.0,9.0/8,-3.0/8,-3.0/4,1.0/2,0.0,0.0,
-                            9.0/44,-9.0/11,63.0/44,18.0/11,0.0,-16.0/11,0.0};
-                b_table = {11.0/120, 0.0, 27.0/40, 27.0/40, -4.0/15, -4.0/15, 11.0/120};
-                length = 7;
-            } else if (!strcmp(integr, "Wray3")) {
-                a_table = {0.0,0.0,0.0 , 8.0/15,0.0,0.0 , 1.0/4,5.0/12,0.0};
-                b_table = {1.0/4, 0.0, 3.0/4};
-                length = 3;
-            } else if (!strcmp(integr, "SSPRK3")) {
-                a_table = {0.0,0.0,0.0 , 1.0,0.0,0.0 , 1.0/4,1.0/4,0.0};
-                b_table = {1.0/6, 1.0/6, 2.0/3};
-                length = 3;
-            } else if (!strcmp(integr, "3_over_8")) {
-                a_table = {0.0,0.0,0.0,0.0 , 1.0/3,0.0,0.0,0.0 , -1.0/3,1.0,0.0,0.0 , 1.0,-1.0,1.0,0.0};
-                b_table = {1.0/8, 3.0/8, 3.0/8, 1.0/8};
-                length = 4;
-            } else if (!strcmp(integr, "Ralston4")) {
-                a_table = {0.0,0.0,0.0,0.0 , 0.4,0.0,0.0,0.0 , 0.29697761,0.15875964,0.0,0.0 , 0.21810040,-3.05096516,3.83286476,0.0};
-                b_table = {0.17476028,-0.55148066,0.120553560,0.17118478};
-                length = 4;
-            } else {
-                assert(0 == 1);
-            }
-        }
-
-    void operator()(NSystem& y_n, double h) {
-        NSystem kis [length];
-        for (int i = 0; i < length; i++) {
-            NSystem argument = y_n;
-            for (int j = 0; j < i; j++) {
-                argument += h*a_table[i*length+j]*kis[j];
-            }
-            kis[i] = argument.evaluate_g();
-        }
-        for (int i = 0; i < length; i++){
-            y_n += h*b_table[i]*kis[i];
-        }
-    }
-
-};
-
 
 void Forward_Euler(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
@@ -1049,3 +988,97 @@ double compare_solutions(NSystem_reg_2D a, NSystem_reg_2D b){
     }
     return sqrt(error);
 }
+
+
+class General_integrator{
+    private: 
+        int length;
+        std::vector<double> a_table;
+        std::vector<double> b_table;
+    public:
+        General_integrator(){}
+
+        General_integrator(int _length, std::vector<double> _a_table, std::vector<double> _b_table) {
+            length = _length;
+            a_table = _a_table;
+            b_table = _b_table;
+        }
+
+        General_integrator(std::string integr) {
+            // if (_normal) {
+            //     if (!strcmp(integr, "RK4")) {
+            //         integrator_function = RK4_step;
+            //     } else if (!strcmp(integr, "Forward_Euler")) {
+            //         integrator_function = Forward_Euler;
+            //     } else if (!strcmp(integr, "RK2")) {
+            //         integrator_function = RK2_step;
+            //     } else if (!strcmp(integr, "Heun")) {
+            //         integrator_function = Heun;
+            //     } else if (!strcmp(integr, "Heun3")) {
+            //         integrator_function = Heun3;
+            //     } else if (!strcmp(integr, "Ralston")) {
+            //         integrator_function = Ralston;
+            //     } else if (!strcmp(integr, "Ralston3")) {
+            //         integrator_function = Ralston3;
+            //     } else if (!strcmp(integr, "RK3")) {
+            //         integrator_function = RK3_step;
+            //     } else if (!strcmp(integr, "Forrest Ruth")) {
+            //         integrator_function = Forest_Ruth_friend;
+            //     } else if (!strcmp(integr, "PEFRL")) {
+            //         integrator_function = PEFRL_friend;
+            //     } else if (!strcmp(integr, "Velocity Verlet")) {
+            //         integrator_function = Velocity_Verlet_friend;
+            //     } else if (!strcmp(integr, "Position Verlet")) {
+            //         integrator_function = Position_Verlet_friend;
+            //     } else if (!strcmp(integr, "Leapfrog")) {
+            //         integrator_function = Leapfrog_friend;
+            //     } else if (!strcmp(integr, "Yoshida_4")) {
+            //         integrator_function = Yoshida_4_friend;
+            //     }                    
+            // } else {
+            if (integr.compare("RK4") == 0) {
+                a_table = {0.0,0.0,0.0,0.0 , 0.5,0.0,0.0,0.0 , 0.0,0.5,0.0,0.0 , 0.0,0.0,1.0,0.0};
+                b_table = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
+                length = 4;
+            } else if (integr.compare("RK6") == 0) {
+                a_table = {0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/3,0.0,0.0,0.0,0.0,0.0,0.0 , 0.0,2.0/3,0.0,0.0,0.0,0.0,0.0,
+                            1.0/12,1.0/3,-1.0/12,0.0,0.0,0.0,0.0 , -1.0/16,9.0/8,-3.0/16,-3.0/8,0.0,0.0,0.0 , 0.0,9.0/8,-3.0/8,-3.0/4,1.0/2,0.0,0.0,
+                            9.0/44,-9.0/11,63.0/44,18.0/11,0.0,-16.0/11,0.0};
+                b_table = {11.0/120, 0.0, 27.0/40, 27.0/40, -4.0/15, -4.0/15, 11.0/120};
+                length = 7;
+            } else if (integr.compare("Wray3") == 0) {
+                a_table = {0.0,0.0,0.0 , 8.0/15,0.0,0.0 , 1.0/4,5.0/12,0.0};
+                b_table = {1.0/4, 0.0, 3.0/4};
+                length = 3;
+            } else if (integr.compare("SSPRK3") == 0) {
+                a_table = {0.0,0.0,0.0 , 1.0,0.0,0.0 , 1.0/4,1.0/4,0.0};
+                b_table = {1.0/6, 1.0/6, 2.0/3};
+                length = 3;
+            } else if (integr.compare("3_over_8") == 0) {
+                a_table = {0.0,0.0,0.0,0.0 , 1.0/3,0.0,0.0,0.0 , -1.0/3,1.0,0.0,0.0 , 1.0,-1.0,1.0,0.0};
+                b_table = {1.0/8, 3.0/8, 3.0/8, 1.0/8};
+                length = 4;
+            } else if (integr.compare("Ralston4") == 0) {
+                a_table = {0.0,0.0,0.0,0.0 , 0.4,0.0,0.0,0.0 , 0.29697761,0.15875964,0.0,0.0 , 0.21810040,-3.05096516,3.83286476,0.0};
+                b_table = {0.17476028,-0.55148066,0.120553560,0.17118478};
+                length = 4;
+            } else {
+                assert(0 == 1);
+            }
+        }
+
+    void operator()(NSystem& y_n, double h) {
+        NSystem kis [length];
+        for (int i = 0; i < length; i++) {
+            NSystem argument = y_n;
+            for (int j = 0; j < i; j++) {
+                argument += h*a_table[i*length+j]*kis[j];
+            }
+            kis[i] = argument.evaluate_g();
+        }
+        for (int i = 0; i < length; i++){
+            y_n += h*b_table[i]*kis[i];
+        }
+    }
+
+};

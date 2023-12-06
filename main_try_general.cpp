@@ -17,7 +17,6 @@
 
 #define ADAPTIVE_TIME_STEP true
 
-
 typedef void (*integ) (NSystem&, double);
 
 int main(){
@@ -34,7 +33,9 @@ int main(){
     //double* a_table_ptr[4] = {a_table[0], a_table[1], a_table[2], a_table[3]};
 
     //General_integrator integrator_function = General_integrator(4, a_table, b_table);
-    General_integrator integrator_function = General_integrator("Ralston4");
+
+    std::vector<std::string> normal_list = {"Forward Euler","RK2","Heun","Heun3","Ralston", "Ralston3","RK3", "RK4", "Forest Ruth", "PEFRL", "Velocity Verlet","Position Verlet", "Leapfrog", "Yoshida_4"};
+    std::vector<std::string> bureau_list = {"RK6", "Wray3", "SSPRK3", "3_over_8", "Ralston4"};
 
     std::unordered_map<std::string, integ> functions ={
         {"Forward Euler", Forward_Euler},
@@ -52,7 +53,6 @@ int main(){
         {"Leapfrog", Leapfrog_friend},
         {"Yoshida_4", Yoshida_4_friend}
     };
-
 
 
     std::string in_cond;
@@ -86,8 +86,17 @@ int main(){
     in_cond = "two-body-3D.txt";
     in_cond = "lemniscate.txt";
     //in_cond = "100gauss.txt";
+    //auto integrator_function;
+
+    // General_integrator integrator_function;
+    // if (1 == 0) {
+    //     General_integrator integrator_function = General_integrator(true, integrator) //[integrator];
+    // } else if (0 == 0) {
+    //     General_integrator integrator_function = General_integrator(false, integrator);
+    // }
 
     // integ integrator_function = functions[integrator];
+    General_integrator integrator_function = General_integrator(integrator);
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -15);
