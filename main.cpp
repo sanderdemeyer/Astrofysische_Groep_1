@@ -72,7 +72,7 @@ int main(){
     h = 0.001;
     // iter = 50000;
     tmax = 100;
-    integrator = "RK8";
+    integrator = "IRK5";
     in_cond = "rings.txt";
     ADAPTIVE_TIME_STEP = false;
 
