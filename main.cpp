@@ -69,11 +69,11 @@ int main(){
     std::cin >> iter;
     */
 
-    h = 0.001;
+    h = 0.1;
     // iter = 50000;
     tmax = 100;
-    integrator = "IRK5";
-    in_cond = "rings.txt";
+    integrator = "RK4";
+    in_cond = "perturbed-criss-cross.txt";
     ADAPTIVE_TIME_STEP = false;
 
     double Delta_max = pow(10, -10);

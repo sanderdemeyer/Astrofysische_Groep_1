@@ -873,13 +873,28 @@ public:
 
     //friend void Leapfrog_reg(NSystem_reg& y_n, double dtau);
 
-    bool check_separation(double transform_distance){
+    std::vector<int> check_separation(double transform_distance){
         // only works for two bodies for the moment
         if (_regularized){
-            return (_reg_coo.u_squared() < transform_distance);
+            if (_reg_coo.u_squared() < transform_distance) {
+                std::vector<int> return_values = {1, 0, 0};
+                return return_values;
+            } else {
+                std::vector<int> return_values = {0, 0, 0};
+                return return_values;
+            }
         } else {
+            for (int body_1 = 0; body_1 < _nsystem.positions().size(); body_1++) {
+                for (int body_2 = 0; body_2 < _nsystem.positions().size(); body_2++) {
+                    if ((body_1 != body_2) && (((_nsystem.positions()[body_1] - _nsystem.positions()[body_2])).norm() < transform_distance)) {
+                        std::vector<int> return_values = {1, body_1, body_2};
+                        return return_values;
+                    }
+                }
+            }
             //std::cout << "distance is " << ((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() << std::endl;
-            return (((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() < transform_distance);
+            std::vector<int> return_values = {0, 0, 0};
+            return return_values;
         }
     }
 
@@ -964,7 +979,7 @@ public:
             double u_squared = RK4_step_reg_2D(_reg_coo, dtau);
             Yoshida_4_friend(_nsystem, dtau*u_squared);
             //Yoshida_4_friend(_nsystem, dtau);
-            std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
+            // std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
         } else {
             Yoshida_4_friend(_nsystem, h);
         }
@@ -1070,30 +1085,30 @@ class General_integrator{
                             389.0/4320,0.0,-54.0/4320,966.0/4320,-824.0/4320,243.0/4320,0.0,0.0,0.0,0.0 , -234.0/20,0.0,81.0/20,-1164.0/20,656.0/20,-122.0/20,800.0/20,0.0,0.0,0.0 , -127.0/288,0.0,18.0/288,-678.0/288,456.0/288,-9.0/288,576.0/288,4.0/288,0.0,0.0,
                             1481.0/820,0.0,-81.0/820,7104.0/820,-3376.0/820,72.0/820,-5040.0/820,-60.0/820,720.0/820,0.0};
                 b_table = {41.0/840,0.0,0.0,27.0/840,272.0/840,27.0/840,216.0/840,0.0,216.0/840,41.0/840};
-                std::cout << "a_table = " << a_table.size() << std::endl;
-                std::cout << "b_table = " << b_table.size() << std::endl;
                 length = 10;
             } else if (integr.compare("RK5_wrong") == 0) {
                 a_table = {0.0,0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/5,0.0,0.0,0.0,0.0,0.0,0.0 , 3.0/40,9.0/40,0.0,0.0,0.0,0.0,0.0,
                             44.0/45,-56.0/15,32.0/9,0.0,0.0,0.0,0.0 , 19372.0/6561,-25360.0/2187,64448.0/6561,-212.0/729,0.0,0.0,0.0 , -9017.0/3168,-355.0/33,46732.0/5247,49.0/176,-5103.0/18656,0.0,0.0,
                             35.0/384,0.0,500.0/1113,125.0/192,-2187.0/6784,11.0/84,0.0};
                 b_table = {5179.0/57600, 0.0, 7571.0/16695, 393.0/640, -92097.0/339200, 187.0/2100, 1.0/40};
-                std::cout << "a_table = " << a_table.size() << std::endl;
-                std::cout << "b_table = " << b_table.size() << std::endl;
                 length = 7;
             } else if (integr.compare("RK5") == 0) {
                 a_table = {0.0,0.0,0.0,0.0,0.0,0.0 , 1.0/4,0.0,0.0,0.0,0.0,0.0 , 1.0/8,1.0/8,0.0,0.0,0.0,0.0,
                             0.0,-0.5,1.0,0.0,0.0,0.0 , 3.0/16,0.0,0.0,9.0/16,0.0,0.0 , -3.0/7,2.0/7,12.0/7,-12.0/7,8.0/7,0.0};
                 b_table = {7.0/90,0.0,32.0/90,12.0/90,32.0/90,7.0/90};
-                std::cout << "a_table = " << a_table.size() << std::endl;
-                std::cout << "b_table = " << b_table.size() << std::endl;
                 length = 6;
-            } else if (integr.compare("IRK5") == 0) {
+            } else if (integr.compare("IRK5_wrong") == 0) {
                 a_table = {0.0,0.0,0.0,0.0,0.0 , 0.25,0.0,0.0,0.0,0.0,
                             -0.7272,0.7322,0.0,0.0,0.0 , 0.5734,-2.2485,3.344,0.0,0.0,
                             0.1750,0.0121,0.0559,0.5517,0.0};
                 b_table = {1.0222, -0.0961, 0.0295, -0.1, 0.6444};
                 length = 5; // wrong: https://www.ajbasweb.com/old/ajbas/2012/March/97-105.pdf
+            } else if (integr.compare("IRK5_wrong2") == 0) {
+                a_table = {0.0,0.0,0.0,0.0,0.0 , 1.0/4,0.0,0.0,0.0,0.0,
+                            -1.0/125,259.0/1000,0.0,0.0,0.0 , 0.386,-0.531,0.644,0.0,0.0,
+                            0.206,-0.9,0.892,0.552,0.0};
+                b_table = {46.0/45, 1.0/25, -0.107, -0.1, 29.0/45};
+                length = 5; // wrong
             } else {
                 assert(0 == 1);
             }

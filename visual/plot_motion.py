@@ -15,9 +15,15 @@ import matplotlib.pyplot as plt
 data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = True)
 data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack = True)
 data = np.loadtxt("traj_reg/Reg_2D_Burrau_RK4_2500000_0.001000.txt", unpack = True)
-data = np.loadtxt("traj/lemniscate_RK4_1000000_0.001000_adaptive.txt", unpack=True)
-data = np.loadtxt("traj/rings_RK4_100.000000_0.001000.txt", unpack = True)
+#data = np.loadtxt("traj/lemniscate_RK4_1000000_0.001000_adaptive.txt", unpack=True)
+data = np.loadtxt("traj/perturbed-criss-cross_RK4_100.000000_0.001000.txt", unpack = True)
 #data = np.loadtxt("traj/two-body_RK4_2500000_0.001000_adaptive.txt", unpack = True)
+
+data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack=True)
+data = np.loadtxt("traj_reg/Reg_2D_Burrau_scaled_RK4_10000000_0.001000.txt", unpack=True)
+data = np.loadtxt("traj_reg/Reg_2D_Burrau_scaled_RK4_1000000_0.001000_0.000000.txt", unpack=True)
+
+
 data = np.array(data)
 
 print(np.shape(data))

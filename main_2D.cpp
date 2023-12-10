@@ -64,16 +64,20 @@ int main(){
     */
 
     h = 0.001;
-    iter = 2500000;
+    iter = 1000000;
     integrator = "RK4";
     // in_cond = "perturbed_criss_cross.txt";
     in_cond = "Solar-System.txt";
-    in_cond = "3_body_problem.txt";
-    in_cond = "Burrau.txt";
+    in_cond = "two-body.txt";
+    in_cond = "Burrau_scaled.txt";
     //in_cond = "100gauss.txt";
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -15);
+
+    bool regularized = false;
+    double transform_distance = 0.0;
+    double dtau = h/transform_distance;
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4);
 
@@ -90,7 +94,7 @@ int main(){
     std::cout << "size is " << NoB << std::endl;
 
     //std::string filename= std::to_string(N)+ "_body_" + integrator + ".txt";
-    std::string filename = "Reg_2D_" + SystemName + "_" + integrator + "_" + std::to_string(iter) + "_" + std::to_string(h);
+    std::string filename = "Reg_2D_" + SystemName + "_" + integrator + "_" + std::to_string(iter) + "_" + std::to_string(h) + "_" + std::to_string(transform_distance);
     if (ADAPTIVE_TIME_STEP){
         filename += "_adaptive";
     }
@@ -108,23 +112,20 @@ int main(){
     outfile_energy << std::setprecision(8);
     outfile_energy << t << ' ' << z.nsystem().get_energy() << '\n';
 
-    bool regularized = false;
-    bool should_be_regularized;
-    double transform_distance = 0.7;
-    double dtau = h/transform_distance;
     Vec u, r;
+    std::vector<int> should_be_regularized;
 
-    for (int i = 0; i < 100000; i++){ // 5540
+    for (int i = 0; i < iter; i++){ // 5540
         should_be_regularized = z.check_separation(transform_distance);
         //should_be_regularized = (i < 6003) && (i > 5997);
         //should_be_regularized = false;
 
-        if (should_be_regularized && (!regularized)){
-            std::cout << "Forward for i = " << i << std::endl;
-            z = z.transform_forward(0, 1);
+        if (should_be_regularized[0] && (!regularized)){
+            std::cout << "Forward for i = " << i << " and bodies " << should_be_regularized[1] << " and " << should_be_regularized[2] << std::endl;
+            z = z.transform_forward(should_be_regularized[1], should_be_regularized[2]);
             regularized = !regularized;
         }
-        else if ((!should_be_regularized) && (regularized)){
+        else if ((!should_be_regularized[0]) && (regularized)){
             std::cout << "Backward for i = " << i << std::endl;
             z = z.transform_backward();
             regularized = !regularized;
@@ -164,10 +165,6 @@ int main(){
             
             outfile_energy << z.nsystem().get_energy() << '\n';
         } 
-
-        if (i % 1000 == 0){
-            std::cout << regularized << should_be_regularized << z.nsystem().positions().size() << std::endl;
-        }
 
         if (i < 8001 && i > 7999){
             std::cout << "Started for i = \n" << i;

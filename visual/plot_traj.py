@@ -310,12 +310,12 @@ if type_plot == 'animate':
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'rings_IRK5_100.000000_0.001000.txt'
+integrator = 'Voyager_RK6_100.000000_0.001000.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection
-project = True
+project = False
 ## labels if needed, otherwise set to False
 label = None
 
