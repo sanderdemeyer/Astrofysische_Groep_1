@@ -40,7 +40,7 @@ int main(){
     };
 
     double h = 0.01;
-    int iter = 10000;
+    int iter = 1000;
 
     std::vector<std::string> files;
 

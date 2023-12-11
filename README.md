@@ -36,9 +36,9 @@ $$
 
 * **`random_gauss`**: 2- to 99-body initial conditions according to a Gaussian distribution, generated using **`random_gauss.py`**. These are used to study the scaling behavior of the different integrators used.
 
-* **`scaling_friend`**: Text files with the execution time in milliseconds for 10000 steps for 2- to 99-body systems for all the ```void friend``` class integrators (see **`main.cpp`**).
+* **`scaling_friend`**: Text files with the execution time in milliseconds for 1000 steps for 2- to 99-body systems for all the ```void friend``` class integrators (see **`main.cpp`**) with a timestep of 0.01 y.
 
-* **`scaling_general`**: Text files with the execution time in milliseconds for 10000 steps for 2- to 99-body systems for all the ```General_integrator``` class integrators (see **`main.cpp`**).
+* **`scaling_general`**: Text files with the execution time in milliseconds for 1000 steps for 2- to 99-body systems for all the ```General_integrator``` class integrators (see **`main.cpp`**) with a timestep of 0.01 y.
 
 * **`temperatures`**: IDK
 
@@ -100,7 +100,7 @@ The trajectories are stored in the **`traj`** folder and the energies are stored
 *SystemName_integrator_tmax_h(_adaptive).txt*
 
 ## **`scaling_friend.cpp`**
-Calculates the execution time in milliseconds for 10000 steps for 2- to 99-body systems for all the ```void friend``` class integrators. The integrators studied are:
+Calculates the execution time in milliseconds for 1000 steps for 2- to 99-body systems for all the ```void friend``` class integrators with a timestep of 0.01 y. The integrators studied are:
 - Forest Ruth
 - Forward Euler
 - Heun
@@ -117,7 +117,7 @@ Calculates the execution time in milliseconds for 10000 steps for 2- to 99-body 
 - Yoshida 4
 
 ## **`scaling_general.cpp`**
-Calculates the execution time in milliseconds for 10000 steps for 2- to 99-body systems for all the ```General_integrator``` class integrators. The integrators studied are:
+Calculates the execution time in milliseconds for 1000 steps for 2- to 99-body systems for all the ```General_integrator``` class integrators with a timestep of 0.01 y. The integrators studied are:
 - 3 over 8
 - Ralston4
 - RK4

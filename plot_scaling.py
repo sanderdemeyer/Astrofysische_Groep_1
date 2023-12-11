@@ -19,28 +19,29 @@ for friend in files_friend:
     times = np.loadtxt(friend, unpack=True)
     l = str(friend).removesuffix('.txt').lstrip('scaling_friend\\')
     par, cov = sp.optimize.curve_fit(fun, num, times)
-    label = l + ": $x^{} + {:.0f}$".format(int(par[0]), par[1])
+    label = l + ": $ \propto x^{}$".format(int(par[0]))
     plt.scatter(num, times, label=label, s=5)
     plt.plot(t,fun(t, par[0], par[1]), '--')
 plt.xlabel('N')
-plt.ylabel('t per 10000 steps [ms]')
-plt.legend()
+plt.ylabel('t per steps [$\mu s$]')
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.tight_layout()
 plt.savefig('performance/scaling_friend.png')
 plt.show()
 
-'''
+
 plt.figure(figsize=(8,6))
 for friend in files_general:
     # to plot the expected behavior
     times = np.loadtxt(friend, unpack=True)
     l = str(friend).removesuffix('.txt').lstrip('scaling_general\\')
     par, cov = sp.optimize.curve_fit(fun, num, times)
-    label = l + ": $x^{} + {:.0f}$".format(int(par[0]), par[1])
+    label = l + ": $  \propto x^{}$".format(int(par[0]))
     plt.scatter(num, times, label=label, s=5)
     plt.plot(t,fun(t, par[0], par[1]), '--')
 plt.xlabel('N')
-plt.ylabel('t per 10000 steps [ms]')
-plt.legend()
+plt.ylabel('t per steps [$\mu s$]')
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.tight_layout()
 plt.savefig('performance/scaling_general.png')
 plt.show()
-'''
