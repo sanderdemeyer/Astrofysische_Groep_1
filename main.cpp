@@ -38,7 +38,7 @@ int main(){
         {"Velocity Verlet", Velocity_Verlet_friend}, // 2 driver evaluations
         {"Position Verlet", Position_Verlet_friend}, // 1 driver evaluation
         {"Leapfrog", Leapfrog_friend}, // 1 driver evaluation
-        {"Yoshida_4", Yoshida_4_friend} // 3 driver evaluations
+        {"Yoshida 4", Yoshida_4_friend} // 3 driver evaluations
     };
 
     std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
