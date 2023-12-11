@@ -1,4 +1,4 @@
-#define CONSTANT_G 39.4780
+#define CONSTANT_G 39.43313022
 #define THETA 1.35120719195966
 #define XI_PEFRL 0.1786178958448091
 #define LAMBDA_PEFRL -0.2123418310626054
@@ -577,6 +577,7 @@ public:
 
     friend double Leapfrog_reg_2D(Regularized_coo_2D& y_old, double h);
     friend double RK4_step_reg_2D(Regularized_coo_2D& y_n, double h);
+    friend double Yoshida_4_step_reg_2D(Regularized_coo_2D& y_n, double h);
 
     Vec2 u() const { return _u; }
     Vec2 v() const { return _v; }
@@ -730,6 +731,18 @@ double RK4_step_reg_2D(Regularized_coo_2D& y_n, double h){
     y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
     return y_n._u.norm2();
 }
+
+double Yoshida_4_step_reg_2D(Regularized_coo_2D& y_n, double h){
+    y_n._u = y_n._u + (YOSHIDA_W1/2)*h*y_n._v;
+    y_n._v = y_n._v + YOSHIDA_W1*h*y_n.evaluate_g_reg_2D()._v;
+    y_n._u = y_n._u + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*y_n._v;
+    y_n._v = y_n._v + YOSHIDA_W0*h*y_n.evaluate_g_reg_2D()._v;
+    y_n._u = y_n._u + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*y_n._v;
+    y_n._v = y_n._v + YOSHIDA_W1*h*y_n.evaluate_g_reg_2D()._v;
+    y_n._u = y_n._u + (YOSHIDA_W1/2)*h*y_n._v;
+    return y_n._u.norm2();
+}
+
 
 Vec transform_vector_backward(Vec4 u){
     double r1 = pow(u._x, 2) - pow(u._y, 2) - pow(u._z, 2) + pow(u._a, 2);
@@ -977,6 +990,8 @@ public:
     void timestep(double h, double dtau){
         if (_regularized){
             double u_squared = RK4_step_reg_2D(_reg_coo, dtau);
+            // double u_squared = Yoshida_4_step_reg_2D(_reg_coo, dtau);
+            
             Yoshida_4_friend(_nsystem, dtau*u_squared);
             //Yoshida_4_friend(_nsystem, dtau);
             // std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;

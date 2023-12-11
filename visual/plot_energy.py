@@ -12,7 +12,7 @@ integrator = "RK4"
 #t, E = np.loadtxt('{}/energy/{}'.format(directory, integrator), unpack=True)
 #t, E = np.loadtxt('energy/perturbed-criss-cross_RK4_100.000000_0.100000.txt', unpack=True)
 E = np.loadtxt('energy_reg/Reg_2D_Burrau_scaled_RK4_10000000_0.001000.txt', unpack=True)
-E = np.loadtxt('energy_reg/Reg_2D_Burrau_scaled_RK4_1000000_0.001000_0.000000.txt', unpack=True)
+E = np.loadtxt('energy_reg/Reg_2D_collision_RK4_1000000_0.001000_0.500000.txt', unpack=True)
 
 
 
@@ -26,7 +26,8 @@ E_rel_error = (E - E[0])/E[0]
 #filename = args[0] + '_' + args[1]
 
 if type_plot == 'total energy':
-    plt.plot(t, E)
+    #plt.plot(t, E)
+    plt.plot(t, [np.log10(abs(e)) for e in E])
     plt.xlabel('t')
     plt.ylabel('E')
     plt.grid()

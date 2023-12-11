@@ -310,7 +310,7 @@ if type_plot == 'animate':
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'Voyager_RK6_100.000000_0.001000.txt'
+integrator = 'criss-cross_Yoshida_4_1000.000000_0.010000.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3

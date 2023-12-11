@@ -68,15 +68,16 @@ int main(){
     integrator = "RK4";
     // in_cond = "perturbed_criss_cross.txt";
     in_cond = "Solar-System.txt";
-    in_cond = "two-body.txt";
+    in_cond = "two-body-plane.txt";
     in_cond = "Burrau_scaled.txt";
+    in_cond = "collision.txt";
     //in_cond = "100gauss.txt";
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -15);
 
     bool regularized = false;
-    double transform_distance = 0.0;
+    double transform_distance = 0.5;
     double dtau = h/transform_distance;
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4);
@@ -110,7 +111,7 @@ int main(){
 
     std::ofstream outfile_energy("energy_reg/" + filename + ".txt");
     outfile_energy << std::setprecision(8);
-    outfile_energy << t << ' ' << z.nsystem().get_energy() << '\n';
+    outfile_energy << z.nsystem().get_energy() << '\n';
 
     Vec u, r;
     std::vector<int> should_be_regularized;

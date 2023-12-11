@@ -49,8 +49,7 @@ int main(){
     // int iter;
     double tmax;
     double t = 0;
-    bool ADAPTIVE_TIME_STEP
-;
+    bool ADAPTIVE_TIME_STEP;
     
     /*
     // Getting the inputs
@@ -69,11 +68,11 @@ int main(){
     std::cin >> iter;
     */
 
-    h = 0.1;
+    h = 0.01;
     // iter = 50000;
-    tmax = 100;
+    tmax = 1000;
     integrator = "RK4";
-    in_cond = "perturbed-criss-cross.txt";
+    in_cond = "criss-cross.txt";
     ADAPTIVE_TIME_STEP = false;
 
     double Delta_max = pow(10, -10);
@@ -108,8 +107,8 @@ int main(){
 
     std::ofstream outfile_distances("temperatures/" + filename + ".txt");
 
-    // integ integrator_function = functions[integrator];
-    General_integrator integrator_function = General_integrator(integrator);
+    integ integrator_function = functions[integrator];
+    // General_integrator integrator_function = General_integrator(integrator);
 
     int number_of_iterations = 0;
     int driver_evaluations = get_driver_evaluations(integrator);

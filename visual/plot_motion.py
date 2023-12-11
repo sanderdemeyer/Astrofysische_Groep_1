@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 #data = np.loadtxt("two_body_motion_RK4.txt", unpack=True)
 
 
-
+"""
 #data = np.loadtxt("traj/Solar-System_RK4_2500000_0.001000_adaptive.txt", unpack=True)
 #data = np.loadtxt("traj/3_body_problem_RK4_500000_0.001000_adaptive.txt", unpack=True)
 #data = np.loadtxt("traj/3_body_RK4.txt", unpack=True)
@@ -21,8 +21,12 @@ data = np.loadtxt("traj/perturbed-criss-cross_RK4_100.000000_0.001000.txt", unpa
 
 data = np.loadtxt("traj_reg/Reg_2D_two-body_RK4_2500000_0.001000.txt", unpack=True)
 data = np.loadtxt("traj_reg/Reg_2D_Burrau_scaled_RK4_10000000_0.001000.txt", unpack=True)
-data = np.loadtxt("traj_reg/Reg_2D_Burrau_scaled_RK4_1000000_0.001000_0.000000.txt", unpack=True)
+#data = np.loadtxt("traj_reg/Reg_2D_two-body-plane_RK4_500000_0.001000_0.500000.txt", unpack=True)
+"""
 
+data = np.loadtxt("traj_reg/Reg_2D_collision_RK4_1000000_0.001000_0.500000.txt",unpack=True)
+
+data = np.loadtxt("traj/criss-cross_Yoshida_4_1000.000000_0.010000.txt",unpack=True)
 
 data = np.array(data)
 
