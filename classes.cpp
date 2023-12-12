@@ -1125,7 +1125,7 @@ class General_integrator{
                 b_table = {46.0/45, 1.0/25, -0.107, -0.1, 29.0/45};
                 length = 5; // wrong
             } else {
-                assert(0 == 1);
+                assert((0 == 1) && ("This is not implemented with a Butcher Tableau"));
             }
         } // https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/99611d53-5ab6-45bc-8743-1e1080025f83/36a3fccd-1914-485e-bb6d-1d30fcb7e387/images/screenshot.png
 
@@ -1147,9 +1147,9 @@ class General_integrator{
 
 int get_driver_evaluations(std::string integrator) {
     std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
-    std::vector<std::string> driver_evaluations_2 = {"RK2_step", "Heun", "Ralston", "Velocity Verlet"};
-    std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3_step", "Forest Ruth", "Yoshida_4", "Wray3", "SSPRK3"};
-    std::vector<std::string> driver_evaluations_4 = {"RK4", "PEFRL_friend", "3_over_8", "Ralston4"};
+    std::vector<std::string> driver_evaluations_2 = {"RK2", "Heun", "Ralston", "Velocity Verlet"};
+    std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3", "Forest Ruth", "Yoshida_4", "Wray3", "SSPRK3"};
+    std::vector<std::string> driver_evaluations_4 = {"RK4", "PEFRL", "3_over_8", "Ralston4"};
     std::vector<std::string> driver_evaluations_5 = {"IRK5"};
     std::vector<std::string> driver_evaluations_6 = {"RK5"};
     std::vector<std::string> driver_evaluations_7 = {"RK6", "RK5_wrong"};
