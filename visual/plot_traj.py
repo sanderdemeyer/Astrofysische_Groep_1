@@ -5,6 +5,9 @@ import random
 import mpl_toolkits.mplot3d.axes3d as p3
 from scipy import interpolate
 import os
+import warnings
+# ignore this specific warning
+warnings.filterwarnings("ignore", message="Attempting to set identical low and high zlims makes transformation singular; automatically expanding.")
 
 directory = os.getcwd()
 
@@ -43,7 +46,7 @@ def trajectories(file, dim):
             ind_traj[i][j]= part_traj[j]
     return t, ind_traj
 
-def animate(file, dim, tstep, title, line=False, project=False, label=None, name='animation', dpi=300):
+def animate(file, dim, tstep, title, lim=None, line=False, project=False, label=None, name='animation', dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and animates the trajectories of the particles.
     
@@ -58,6 +61,8 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
         The timescale of the simulation, or in other words how much should one second of video be equal to the time used in simulation
     title
         Title of the plot
+    lim
+        Limit the axis
     line
         Whether or not to plot the lines
     project
@@ -100,14 +105,21 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
         ax.set_title('N={}, '.format(N) + title)
         x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
         y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
-        ax.set_xlim(x_all.min(), x_all.max())
-        ax.set_ylim(y_all.min(), y_all.max())
+        if lim:
+            ax.set_xlim(lim[0])
+            ax.set_ylim(lim[1])
+        else:
+            ax.set_xlim(x_all.min(), x_all.max())
+            ax.set_ylim(y_all.min(), y_all.max())
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
-        if label!= None:
+        if label:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-            fig.set_tight_layout(True)
+        else:
+            label = ['Body {}'.format(i) for i in range(1, N+1)]
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+        fig.set_tight_layout(True)
         if line:
             x = np.zeros((N, n_t_org))
             y = np.zeros((N, n_t_org))
@@ -127,16 +139,24 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
         x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
         y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
         z_all = np.array([traj[i][:,2] for i in range(n_t)]).flatten()
-        ax.set_xlim3d(x_all.min(), x_all.max())
-        ax.set_ylim3d(y_all.min(), y_all.max())
-        ax.set_zlim3d(z_all.min(), z_all.max())
+        if lim:
+            ax.set_xlim3d(lim[0])
+            ax.set_ylim3d(lim[1])
+            ax.set_zlim3d(lim[1])
+        else:
+            ax.set_xlim3d(x_all.min(), x_all.max())
+            ax.set_ylim3d(y_all.min(), y_all.max())
+            ax.set_zlim3d(z_all.min(), z_all.max())
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
         ax.set_zlabel("z [AU]")
         scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], traj[0][i][2], s=2) for i in range(N)]
-        if label!= None:
+        if label:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-            fig.set_tight_layout(True)
+        else:
+            label = ['Body {}'.format(i) for i in range(1, N+1)]
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+        fig.set_tight_layout(True)
         if line:
             x = np.zeros((N, n_t_org))
             y = np.zeros((N, n_t_org))
@@ -160,8 +180,12 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
             ax.set_title('N={}, '.format(N) + title)
             x_all = np.array([traj[i][:,0] for i in range(n_t)]).flatten()
             y_all = np.array([traj[i][:,1] for i in range(n_t)]).flatten()
-            ax.set_xlim(x_all.min(), x_all.max())
-            ax.set_ylim(y_all.min(), y_all.max())
+            if lim:
+                ax.set_xlim(lim[0])
+                ax.set_ylim(lim[1])
+            else:
+                ax.set_xlim(x_all.min(), x_all.max())
+                ax.set_ylim(y_all.min(), y_all.max())
             ax.set_xlabel("x [AU]")
             ax.set_ylabel("y [AU]")
             scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
@@ -175,14 +199,17 @@ def animate(file, dim, tstep, title, line=False, project=False, label=None, name
                 for i in range(N):
                     ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
             ax.grid(False)
-            if label!= None:
+            if label:
                 ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-                fig.set_tight_layout(True)
+            else:
+                label = ['Body {}'.format(i) for i in range(1, N+1)]
+                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+            fig.set_tight_layout(True)
             ani = animation.FuncAnimation(fig, update_2, frames=n_t)
             ani.save('{}/ani_traj/{}_projection.mkv'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
 
-def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi=300):
+def plot(file, dim, title, lim=None,project=False, name='trajectories', label= None,  dpi=300):
     """
     This function takes a txt file where the lines contains the timesteps and the positions of the N partilces at that timestep and plots the trajectories of the particles in 2D or 3D.
     
@@ -195,6 +222,8 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
         Dimension of the Nbody simulation, has to be 2 or 3
     title
         Title of the plot
+    lim
+        Limit the axis
     project
         Whether to also plot a 2D projection
     name
@@ -224,15 +253,22 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
         ax.set_title('N={}, '.format(N) + title)
         x_all = x.flatten()
         y_all = y.flatten()
-        ax.set_xlim(x_all.min(), x_all.max())
-        ax.set_ylim(y_all.min(), y_all.max())
+        if lim:
+            ax.set_xlim(lim[0])
+            ax.set_ylim(lim[1])
+        else:
+            ax.set_xlim(x_all.min(), x_all.max())
+            ax.set_ylim(y_all.min(), y_all.max())
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
         for i in range(N):
             ax.plot(x[i],y[i], linewidth=0.5)
-        if label!= None:
+        if label:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-            fig.set_tight_layout(True)
+        else:
+            label = ['Body {}'.format(i) for i in range(1, N+1)]
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+        fig.set_tight_layout(True)
         ax.grid(False)
         plt.savefig('{}/plot_traj/{}_2D.png'.format(directory,name), dpi=dpi, bbox_inches='tight')
 
@@ -250,9 +286,14 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
         x_all = x.flatten()
         y_all = y.flatten()
         z_all = z.flatten()
-        ax.set_xlim3d(x_all.min(), x_all.max())
-        ax.set_ylim3d(y_all.min(), y_all.max())
-        ax.set_zlim3d(z_all.min(), z_all.max())
+        if lim:
+            ax.set_xlim3d(lim[0])
+            ax.set_ylim3d(lim[1])
+            ax.set_zlim3d(lim[2])
+        else:
+            ax.set_xlim3d(x_all.min(), x_all.max())
+            ax.set_ylim3d(y_all.min(), y_all.max())
+            ax.set_zlim3d(z_all.min(), z_all.max())
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
         ax.set_zlabel("z [AU]")
@@ -262,9 +303,12 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
         ax.xaxis.pane.fill = False
         ax.yaxis.pane.fill = False
         ax.zaxis.pane.fill = False
-        if label != None:
+        if label:
             ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-            fig.set_tight_layout(True)
+        else:
+            label = ['Body {}'.format(i) for i in range(1, N+1)]
+            ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+        fig.set_tight_layout(True)
         plt.savefig('{}/plot_traj/{}_3D.png'.format(directory,name), dpi=dpi, bbox_inches='tight')
         
         if project:
@@ -280,16 +324,23 @@ def plot(file, dim, title, project=False, name='trajectories', label= None,  dpi
             ax.set_title('N={}, '.format(N) + title)
             x_all = x.flatten()
             y_all = y.flatten()
-            ax.set_xlim(x_all.min(), x_all.max())
-            ax.set_ylim(y_all.min(), y_all.max())
+            if lim:
+                ax.set_xlim(lim[0])
+                ax.set_ylim(lim[1])
+            else:
+                ax.set_xlim(x_all.min(), x_all.max())
+                ax.set_ylim(y_all.min(), y_all.max())
             ax.set_xlabel("x [AU]")
             ax.set_ylabel("y [AU]")
             for i in range(N):
                 ax.plot(x[i],y[i], linewidth=0.5)
             ax.grid(False)
-            if label != None:
+            if label:
                 ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-                fig.set_tight_layout(True)
+            else:
+                label = ['Body {}'.format(i) for i in range(1, N+1)]
+                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+            fig.set_tight_layout(True)
             plt.savefig('{}/plot_traj/{}_projection.png'.format(directory,name), dpi=dpi, bbox_inches='tight')
     plt.show()
 
@@ -316,14 +367,17 @@ type_plot = 'plot'
 dim = 3
 ## whether or not to plot 2D projection
 project = False
-## labels if needed, otherwise set to False
+## labels if needed, otherwise set to None
 label = None
+## limit of the axis, default is None or thus automatic
+lim = None
+#lim = [[-2,2], [-2,2], [-1,1]]
 
 # for animation
 ## plot trajectorires in animation
 line = True
 ## timescale of the animation: how much should one second of animation be in simuulation time
-tstep = 0.05
+tstep = 1
 
 
 # DO NOT CHANGE ANYTHING UNDER THIS
@@ -340,14 +394,18 @@ if type_plot == 'animate':
     #tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     if line:
         filename += '_with_traj'
-    animate(integrator, dim, tstep, title=title, line= True, project= project,label=label, name= filename)
+    print('Animating the trajectories...')
+    animate(integrator, dim, tstep, title=title, lim=lim, line= line, project= project, label=label, name= filename)
     
 elif type_plot == 'plot':
-    plot(integrator, dim, title=title, project=project, name= filename, label=label)
+    print('Plotting the trajectories...')
+    plot(integrator, dim, title=title,lim=lim , project=project, name= filename, label=label)
     
 elif type_plot == 'both':
     #tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     if line:
         filename += '_with_traj'
-    animate(integrator, dim, tstep, title=title, line=True, project= project,label=label, name= filename)
+    print('Animating the trajectories...')
+    animate(integrator, dim, tstep, title=title, lim=lim, line=line, project= project, label=label, name= filename)
+    print('Plotting the trajectories...')
     plot(integrator, dim, title=title, project=project, name= filename.rstrip('_with_traj'), label=label)

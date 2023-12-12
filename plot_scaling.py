@@ -8,8 +8,8 @@ files_general = [f for f in pathlib.Path('scaling_general').iterdir()]
 
 num = np.arange(2, 100)
 
-def fun(x,n,b):
-    return x**n + b
+def fun(x,a,b):
+    return a*(x**2) + b
 
 t = np.arange(0, 100, 0.1)
 
@@ -19,8 +19,7 @@ for friend in files_friend:
     times = np.loadtxt(friend, unpack=True)
     l = str(friend).removesuffix('.txt').lstrip('scaling_friend\\')
     par, cov = sp.optimize.curve_fit(fun, num, times)
-    label = l + ": $ \propto x^{}$".format(int(par[0]))
-    plt.scatter(num, times, label=label, s=5)
+    plt.scatter(num, times, label=l, s=5)
     plt.plot(t,fun(t, par[0], par[1]), '--')
 plt.xlabel('N')
 plt.ylabel('t per steps [$\mu s$]')
@@ -37,7 +36,7 @@ for friend in files_general:
     l = str(friend).removesuffix('.txt').lstrip('scaling_general\\')
     par, cov = sp.optimize.curve_fit(fun, num, times)
     label = l + ": $  \propto x^{}$".format(int(par[0]))
-    plt.scatter(num, times, label=label, s=5)
+    plt.scatter(num, times, label=l, s=5)
     plt.plot(t,fun(t, par[0], par[1]), '--')
 plt.xlabel('N')
 plt.ylabel('t per steps [$\mu s$]')
