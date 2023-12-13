@@ -72,7 +72,7 @@ int main(){
     h = 0.001;
     // iter = 50000;
     tmax = 1000;
-    integrator = "RK4";
+    integrator = "Yoshida 4";
     in_cond = "criss-cross.txt";
     ADAPTIVE_TIME_STEP = true;
     ADAPTIVE_RK45 = true;
@@ -121,23 +121,21 @@ int main(){
         number_of_iterations++;
 
         if (ADAPTIVE_TIME_STEP){
-            if (ADAPTIVE_RK45) {
-                RK45_step(z, h, 1e-5);
-            } else {
-                NSystem y = z;
+            NSystem y = z;
 
-                integrator_function(z, h);
-                integrator_function(y, h/2);
-                integrator_function(y, h/2);
+            integrator_function(z, h);
+            integrator_function(y, h/2);
+            integrator_function(y, h/2);
 
-                double error = compare_solutions(z, y);
-                //std::cout << "For h = " << h << ", the error is " << error << std::endl;
-                if (error > Delta_max) {
-                    h /= 2;
-                } else if (error < Delta_min) {
-                    h *= 2;
-                }
+            double error = compare_solutions(z, y);
+            //std::cout << "For h = " << h << ", the error is " << error << std::endl;
+            if (error > Delta_max) {
+                h /= 2;
+            } else if (error < Delta_min) {
+                h *= 2;
             }
+        } else if (ADAPTIVE_RK45) {
+            RK45_step(z, h, 1e-5);
         } else {
             integrator_function(z, h);
         }
