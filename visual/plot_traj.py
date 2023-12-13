@@ -346,7 +346,7 @@ def plot(file, dim, title, lim=None,project=False, name='trajectories', label= N
 
 '''
 print('This program animtes or plots the trajectories of the particles in an N-body simulation.')
-integrator = input('Please provide the file:\n')
+trajectory = input('Please provide the file:\n')
 type_plot = input('Would you like to animate or plot the trajectories:\n')
 dim = int(input('What is the dimension of the simulation:\n'))
 
@@ -361,8 +361,7 @@ if type_plot == 'animate':
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'Burrau_PEFRL_100.000000_0.001000_adaptive.txt'
-integrator = 'Burrau-with-planet_PEFRL_70.000000_0.001000_adaptive.txt'
+trajectory = 'Burrau-with-planet_PEFRL_70.000000_0.001000_adaptive.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3
@@ -383,7 +382,7 @@ tstep = 5
 
 # DO NOT CHANGE ANYTHING UNDER THIS
 # ----------------------------------------------------------------------------
-name = integrator.rstrip('.txt')
+name = trajectory.rstrip('.txt')
 args = name.split('_')
 title = "{} integrated using {} \n tmax= {}, h= {}".format(args[0], args[1], args[2], args[3])
 if len(args) == 5:
@@ -396,17 +395,17 @@ if type_plot == 'animate':
     if line:
         filename += '_with_traj'
     print('Animating the trajectories...')
-    animate(integrator, dim, tstep, title=title, lim=lim, line= line, project= project, label=label, name= filename)
+    animate(trajectory, dim, tstep, title=title, lim=lim, line= line, project= project, label=label, name= filename)
     
 elif type_plot == 'plot':
     print('Plotting the trajectories...')
-    plot(integrator, dim, title=title,lim=lim , project=project, name= filename, label=label)
+    plot(trajectory, dim, title=title,lim=lim , project=project, name= filename, label=label)
     
 elif type_plot == 'both':
     #tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))
     if line:
         filename += '_with_traj'
     print('Animating the trajectories...')
-    animate(integrator, dim, tstep, title=title, lim=lim, line=line, project= project, label=label, name= filename)
+    animate(trajectory, dim, tstep, title=title, lim=lim, line=line, project= project, label=label, name= filename)
     print('Plotting the trajectories...')
-    plot(integrator, dim, title=title, project=project, name= filename.rstrip('_with_traj'), label=label)
+    plot(trajectory, dim, title=title, project=project, name= filename.rstrip('_with_traj'), label=label)
