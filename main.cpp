@@ -24,7 +24,7 @@ typedef void (*integ) (NSystem&, double);
 int main(){
 
     // Each new integrator must be added to this map
-    std::unordered_map<std::string, integ> functions ={
+    std::unordered_map<std::string, integ> functions = {
         {"Forward Euler", Forward_Euler}, // 1 driver evaluation
         {"RK2", RK2_step}, // 2 driver evaluations
         {"Heun", Heun}, // 2 driver evaluations
@@ -50,7 +50,8 @@ int main(){
     double tmax;
     double t = 0;
     bool ADAPTIVE_TIME_STEP;
-    
+    bool ADAPTIVE_RK45;
+
     /*
     // Getting the inputs
     std::cout << "Run Start" << std::endl;
@@ -68,12 +69,13 @@ int main(){
     std::cin >> iter;
     */
 
-    h = 0.01;
+    h = 0.001;
     // iter = 50000;
     tmax = 1000;
     integrator = "RK4";
     in_cond = "criss-cross.txt";
-    ADAPTIVE_TIME_STEP = false;
+    ADAPTIVE_TIME_STEP = true;
+    ADAPTIVE_RK45 = true;
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -15);
@@ -119,18 +121,22 @@ int main(){
         number_of_iterations++;
 
         if (ADAPTIVE_TIME_STEP){
-            NSystem y = z;
+            if (ADAPTIVE_RK45) {
+                RK45_step(z, h, 1e-5);
+            } else {
+                NSystem y = z;
 
-            integrator_function(z, h);
-            integrator_function(y, h/2);
-            integrator_function(y, h/2);
+                integrator_function(z, h);
+                integrator_function(y, h/2);
+                integrator_function(y, h/2);
 
-            double error = compare_solutions(z, y);
-            //std::cout << "For h = " << h << ", the error is " << error << std::endl;
-            if (error > Delta_max) {
-                h /= 2;
-            } else if (error < Delta_min) {
-                h *= 2;
+                double error = compare_solutions(z, y);
+                //std::cout << "For h = " << h << ", the error is " << error << std::endl;
+                if (error > Delta_max) {
+                    h /= 2;
+                } else if (error < Delta_min) {
+                    h *= 2;
+                }
             }
         } else {
             integrator_function(z, h);
@@ -151,7 +157,7 @@ int main(){
         outfile_distances << t << ' ' << pow(temperature,0.25) << '\n';
 
         if (number_of_iterations % 1000 == 0){
-            std::cout << "iterations = " << number_of_iterations << ", t = " << t << std::endl;
+            std::cout << "iterations = " << number_of_iterations << ", t = " << t << ", h = " << h << std::endl;
         }
 
     };

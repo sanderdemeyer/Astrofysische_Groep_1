@@ -285,6 +285,14 @@ public:
         return *this;
     }
 
+    NSystem& operator-=(NSystem b) {
+        for (size_t i=0; i!=_positions.size(); ++i) {
+            _positions[i] -= b.positions()[i];
+            _velocities[i] -= b.velocities()[i];
+            }
+        return *this;
+    }
+
     NSystem evaluate_g(){
         std::vector<Vec> gs;
         for (size_t i=0; i!=_positions.size(); ++i) {
@@ -330,6 +338,7 @@ NSystem operator*(NSystem a, double s) { return a *= s; }
 NSystem operator*(double s, NSystem a) { return a *= s; }
 NSystem operator/(NSystem a, double s) { return a /= s; }
 NSystem operator+(NSystem a, NSystem b) { return a += b; }
+NSystem operator-(NSystem a, NSystem b) { return a -= b; }
 
 double compare_solutions(NSystem a, NSystem b){
     double error = 0;
@@ -464,6 +473,26 @@ void Yoshida_4_friend(NSystem& y_n, double h){
     y_n._velocities = y_n._velocities + YOSHIDA_W1*h*evaluate_a(y_n._positions, y_n._masses);
     y_n._positions = y_n._positions + (YOSHIDA_W1/2)*h*y_n._velocities;
 }
+
+void RK45_step(NSystem& y_n, double& h, double tolerance){
+    NSystem k1 = y_n.evaluate_g() * h;
+    NSystem k2 = (y_n + 0.25*k1).evaluate_g()*h;
+    NSystem k3 = (y_n + (3.0/32)*k1 + (9.0/32)*k2).evaluate_g()*h;
+    NSystem k4 = (y_n + (1932.0/2197)*k1 + (-7200.0/2197)*k2 + (7296.0/2197)*k3).evaluate_g()*h;
+    NSystem k5 = (y_n + (439.0/216)*k1 + (-8.0)*k2 + (3680.0/513)*k3 + (-845.0/4104)*k4).evaluate_g()*h;
+    NSystem k6 = (y_n + (-8.0/27)*k1 + (2.0)*k2 + (-3544.0/2565)*k3 + (1859.0/4104)*k4 + (-11.0/40)*k5).evaluate_g()*h;
+    
+    NSystem z_new = y_n + (25.0/216)*k1 + (1408.0/2565)*k3 + (2197.0/4101)*k4 + (-1.0/5)*k5;
+    y_n = y_n + (16.0/135)*k1 + (6656.0/12825)*k3 + (28561.0/56430)*k4 + (-9.0/50)*k5 + (2.0/55)*k6;
+    std::vector<Vec> dif = (z_new - y_n).positions();
+    double difference = 0;
+    for (int i = 0; i < dif.size(); i++) {
+        difference += dif[i].norm();
+    }
+    h *= pow(tolerance/(2*difference), 0.25);    
+}
+
+
 
 NSystem getvalues(std::string inputfile) {
     std::ifstream MyreadFile(inputfile);
