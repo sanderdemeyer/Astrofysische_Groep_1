@@ -131,7 +131,7 @@ def animate(file, dim, tstep, title, lim=None, line=False, project=False, label=
                 ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
         ax.grid(False)
         ani = animation.FuncAnimation(fig, update_2, frames=n_t)
-        ani.save('{}/ani_traj/{}_2D.mkv'.format(directory,name), fps=30, dpi=dpi)
+        ani.save('{}/ani_traj/{}_2D.gif'.format(directory,name), fps=30, dpi=dpi)
 
     if dim == 3:
         ax = fig.add_subplot(projection='3d')
@@ -172,7 +172,7 @@ def animate(file, dim, tstep, title, lim=None, line=False, project=False, label=
         ax.zaxis.pane.fill = False
         ax.grid(False)
         ani = animation.FuncAnimation(fig, update_3, frames=n_t)
-        ani.save('{}/ani_traj/{}_3D.mkv'.format(directory,name), fps=30, dpi=dpi)
+        ani.save('{}/ani_traj/{}_3D.gif'.format(directory,name), fps=30, dpi=dpi)
         if project:
             ax.clear()
             ax.remove()
@@ -205,8 +205,8 @@ def animate(file, dim, tstep, title, lim=None, line=False, project=False, label=
                 label = ['Body {}'.format(i) for i in range(1, N+1)]
                 ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
             fig.set_tight_layout(True)
-            ani = animation.FuncAnimation(fig, update_2, frames=n_t)
-            ani.save('{}/ani_traj/{}_projection.mkv'.format(directory,name), fps=30, dpi=dpi)
+            ani = animation.FuncAnimation(fig, update_2, frames=n_t, repeat=False)
+            ani.save('{}/ani_traj/{}_projection.gif'.format(directory,name), fps=30, dpi=dpi)
     plt.show()
 
 def plot(file, dim, title, lim=None,project=False, name='trajectories', label= None,  dpi=300):
@@ -361,7 +361,8 @@ if type_plot == 'animate':
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-integrator = 'criss-cross_Yoshida_4_1000.000000_0.010000.txt'
+integrator = 'Burrau_PEFRL_100.000000_0.001000_adaptive.txt'
+integrator = 'Burrau-with-planet_PEFRL_70.000000_0.001000_adaptive.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3
@@ -377,7 +378,7 @@ lim = None
 ## plot trajectorires in animation
 line = True
 ## timescale of the animation: how much should one second of animation be in simuulation time
-tstep = 1
+tstep = 5
 
 
 # DO NOT CHANGE ANYTHING UNDER THIS

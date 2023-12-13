@@ -52,33 +52,16 @@ int main(){
     bool ADAPTIVE_TIME_STEP;
     bool ADAPTIVE_RK45;
 
-    /*
-    // Getting the inputs
-    std::cout << "Run Start" << std::endl;
-    // get the initial conditions file
-    std::cout << "Provide the initial conditions: ";
-    std::cin >> in_cond;
-    // get the integrator to be used: must be out of the ones defined above
-    std::cout << "Which integrator would you like to use: ";
-    std::cin >> integrator;
-    // get the timestep
-    std::cout << "Provide the initial timestep: ";
-    std::cin >> h;
-    // get the number of iterations
-    std::cout << "Provide the number of iterations: ";
-    std::cin >> iter;
-    */
-
     h = 0.001;
     // iter = 50000;
-    tmax = 1000;
-    integrator = "Yoshida 4";
-    in_cond = "criss-cross.txt";
+    tmax = 70;
+    integrator = "PEFRL";
+    in_cond = "Burrau-with-planet.txt";
     ADAPTIVE_TIME_STEP = true;
-    ADAPTIVE_RK45 = true;
+    ADAPTIVE_RK45 = false; // In order for this to be run, ADAPTIVE_TIME_STEP must be set to false.
 
     double Delta_max = pow(10, -10);
-    double Delta_min = pow(10, -15);
+    double Delta_min = pow(10, -11);
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4);
 
