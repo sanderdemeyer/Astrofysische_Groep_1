@@ -67,7 +67,7 @@ bool ADAPTIVE_RK45 = false;
 ```
 Only these need to be changed in the code to run other simulations.
 
-## Contents of the different folders \ref{}
+## Contents of the different folders
 * **`ani_traj`**: The animated trajectories for some chosen initial conditions. 
     * Naming convention used: *SystemName_integrator_(with_traj_)(3D/projection).gif*
 
