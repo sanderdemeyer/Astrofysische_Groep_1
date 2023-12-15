@@ -78,7 +78,7 @@ int main(){
     }
 
     std::ofstream outfile("traj/" + filename + ".txt");
-    outfile << std::setprecision(8);
+    outfile << std::setprecision(12);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
             outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z() << ' ';
@@ -87,7 +87,7 @@ int main(){
 
 
     std::ofstream outfile_energy("energy/" + filename + ".txt");
-    outfile_energy << std::setprecision(8);
+    outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
     std::ofstream outfile_distances("temperatures/" + filename + ".txt");
