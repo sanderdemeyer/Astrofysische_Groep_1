@@ -359,7 +359,7 @@ def plot(file, dim, title, lim=None,project=False, name='trajectories', label= '
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-trajectory = '100gauss_RK4_200.000000_0.010000.txt'
+trajectory = 'Burrau_RK4_70.000000_0.001000_adaptive.txt'
 type_plot = 'both'
 ## dimension of the file
 dim = 3
@@ -368,8 +368,8 @@ project = False
 ## labels of the bodies. Options are: 'auto' which does automatic numbering, None which does not add labels, and a list ['body1', 'body2', ...] with the labels
 label = None
 ## limit of the axis, default is None or thus automatic
-#lim = None
-lim = [[-10,10], [-10,10], [-10,10]]
+lim = None
+#lim = [[-10,10], [-10,10], [-10,10]]
 
 # for animation
 ## plot trajectorires in animation

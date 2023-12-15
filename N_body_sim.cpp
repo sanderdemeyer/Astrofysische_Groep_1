@@ -254,7 +254,7 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
 
 int main(){
     std::string in_cond = "Burrau.txt"; // File with the initial conditions to be read from the `Initial_conditions` folder
-    std::string type_integ = "general"; // The type of integrator to be used. By default the `friend void` type integrators are used.
+    std::string type_integ = "friend"; // The type of integrator to be used. By default the `friend void` type integrators are used.
     std::string integrator = "RK4"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
     double h = 0.001; // The (initial) timestep.
     double tmax = 70; // Total time considered in the simulation

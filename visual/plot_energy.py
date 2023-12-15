@@ -3,22 +3,20 @@ import matplotlib.pyplot as plt
 import os
 directory = os.getcwd()
 
-print(directory)
-print('This program plots the total energy or the realtive energy error of the N-body system.')
 #integrator = input('Please provide the file:\n')
 
 integrator = "RK4"
 
 #t, E = np.loadtxt('{}/energy/{}'.format(directory, integrator), unpack=True)
 #t, E = np.loadtxt('energy/perturbed-criss-cross_RK4_100.000000_0.100000.txt', unpack=True)
-E = np.loadtxt('energy_reg/Reg_2D_Burrau_scaled_RK4_10000000_0.001000.txt', unpack=True)
-E = np.loadtxt('energy_reg/Reg_2D_collision_RK4_1000000_0.001000_0.500000.txt', unpack=True)
+#E = np.loadtxt('energy_reg/Reg_2D_Burrau_scaled_RK4_10000000_0.001000.txt', unpack=True)
+#E = np.loadtxt('energy_reg/Reg_2D_collision_RK4_1000000_0.001000_0.500000.txt', unpack=True)
+t, E = np.loadtxt('energy/rings_RK5_100.000000_0.001000.txt', unpack=True)
 
 
-
-t = range(len(E))
+#t = range(len(E))
 #type_plot = input('Would you like to plot the total energy or the relative error:\n')
-type_plot = "total energy"
+type_plot = "relative error"
 E_rel_error = (E - E[0])/E[0]
 
 #name = integrator.rstrip('.txt')
@@ -35,6 +33,7 @@ if type_plot == 'total energy':
     plt.show()
 if type_plot == 'relative error':
     plt.plot(t, E_rel_error)
+    plt.yscale("log")
     plt.xlabel('t')
     plt.ylabel('$\Delta E_{rel}$')
     plt.grid()
