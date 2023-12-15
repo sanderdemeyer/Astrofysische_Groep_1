@@ -16,14 +16,11 @@
 
 #include "classes.cpp"
 
-//#define ADAPTIVE_TIME_STEP true
-
 
 typedef void (*integ) (NSystem&, double);
 
 
-int main(){
-
+void integrate (std::string in_cond, std::string integrator, double h, double tmax, bool ADAPTIVE_TIME_STEP, bool ADAPTIVE_RK45){
     // Each new integrator must be added to this map
     std::unordered_map<std::string, integ> functions = {
         {"Forward Euler", Forward_Euler}, // 1 driver evaluation
@@ -42,24 +39,7 @@ int main(){
         {"Yoshida 4", Yoshida_4_friend} // 3 driver evaluations
     };
 
-    std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
-
-    std::string in_cond;
-    std::string integrator;
-    double h;
-    // int iter;
-    double tmax;
     double t = 0;
-    bool ADAPTIVE_TIME_STEP;
-    bool ADAPTIVE_RK45;
-
-    h = 0.001;
-    // iter = 50000;
-    tmax = 70;
-    integrator = "PEFRL";
-    in_cond = "Burrau-with-planet.txt";
-    ADAPTIVE_TIME_STEP = true;
-    ADAPTIVE_RK45 = false; // In order for this to be run, ADAPTIVE_TIME_STEP must be set to false.
 
     double Delta_max = pow(10, -10);
     double Delta_min = pow(10, -11);
@@ -72,7 +52,6 @@ int main(){
     NSystem z = getvalues("Initial_conditions/" + in_cond);
     int N = z.n();
 
-    //std::string filename= std::to_string(N)+ "_body_" + integrator + ".txt";
     std::string filename = SystemName + "_" + integrator + "_" + std::to_string(tmax) + "_" + std::to_string(h);
     if (ADAPTIVE_TIME_STEP){
         filename += "_adaptive";
@@ -143,9 +122,55 @@ int main(){
         }
 
     };
-    
-    /*
-    for (int i = 0; i <= iter; i++){
+
+    int time_stop = time(NULL);
+    std::cout << "Run Done" << std::endl;
+    int time_diff = time_stop - time_start;
+    std::cout << "Run Time = " << time_diff << " seconds" << std::endl;
+    std::cout << "Total number of driver evaluations per time step is \n" << number_of_iterations << " iterations with " << driver_evaluations << " driver evaluations per time step gives " << driver_evaluations*number_of_iterations << " driver evaluations in total." << std::endl;
+}
+
+void integrate_general (std::string in_cond, std::string integrator, double h, double tmax, bool ADAPTIVE_TIME_STEP, bool ADAPTIVE_RK45){
+    double t = 0;
+
+    double Delta_max = pow(10, -10);
+    double Delta_min = pow(10, -11);
+
+    std::string SystemName = in_cond.substr(0, in_cond.size()-4);
+
+    // start the execution
+    int time_start = time(NULL);
+
+    NSystem z = getvalues("Initial_conditions/" + in_cond);
+    int N = z.n();
+
+    std::string filename = SystemName + "_" + integrator + "-general" + "_" + std::to_string(tmax) + "_" + std::to_string(h);
+    if (ADAPTIVE_TIME_STEP){
+        filename += "_adaptive";
+    }
+
+    std::ofstream outfile("traj/" + filename + ".txt");
+    outfile << std::setprecision(12);
+    outfile << t;
+    for (int body_number = 0; body_number < N; body_number++){
+            outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z() << ' ';
+        }
+    outfile << '\n';
+
+
+    std::ofstream outfile_energy("energy/" + filename + ".txt");
+    outfile_energy << std::setprecision(16);
+    outfile_energy << t << ' ' << z.get_energy() << '\n';
+
+    std::ofstream outfile_distances("temperatures/" + filename + ".txt");
+
+    General_integrator integrator_function = General_integrator(integrator);
+
+    int number_of_iterations = 0;
+    int driver_evaluations = get_driver_evaluations(integrator);
+    std::cout << "Number of driver evaluations per time step is " << driver_evaluations << std::endl;
+
+    while(t < tmax){
         t+= h;
         number_of_iterations++;
 
@@ -163,12 +188,10 @@ int main(){
             } else if (error < Delta_min) {
                 h *= 2;
             }
+        } else if (ADAPTIVE_RK45) {
+            RK45_step(z, h, 1e-5);
         } else {
             integrator_function(z, h);
-        }
-
-        if (i % 10000 == 0){
-            std::cout << " i = " << i << std::endl;
         }
 
         outfile << t;
@@ -185,14 +208,32 @@ int main(){
         }
         outfile_distances << t << ' ' << pow(temperature,0.25) << '\n';
 
-    }
-    */
+        if (number_of_iterations % 1000 == 0){
+            std::cout << "iterations = " << number_of_iterations << ", t = " << t << ", h = " << h << std::endl;
+        }
+
+    };
 
     int time_stop = time(NULL);
     std::cout << "Run Done" << std::endl;
     int time_diff = time_stop - time_start;
     std::cout << "Run Time = " << time_diff << " seconds" << std::endl;
     std::cout << "Total number of driver evaluations per time step is \n" << number_of_iterations << " iterations with " << driver_evaluations << " driver evaluations per time step gives " << driver_evaluations*number_of_iterations << " driver evaluations in total." << std::endl;
+}
 
-    return 1;
+
+int main(){
+    std::string in_cond = "Burrau.txt";
+    std::string type_integ = "general";
+    std::string integrator = "RK4";
+    double h = 0.001;
+    double tmax = 70;
+    bool ADAPTIVE_TIME_STEP = true;
+    bool ADAPTIVE_RK45 = false; // When this is true RK45 will be used. In order for this to run, ADAPTIVE_TIME_STEP must be set to false.
+
+    if (type_integ == "general"){
+        integrate_general(in_cond, integrator, h, tmax, ADAPTIVE_TIME_STEP, ADAPTIVE_RK45);
+    } else{
+        integrate(in_cond, integrator, h, tmax, ADAPTIVE_TIME_STEP, ADAPTIVE_RK45);
+    }
 }
