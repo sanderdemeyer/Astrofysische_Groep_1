@@ -26,7 +26,7 @@ Two types of integrators have been defined
 2. ```general```: These are integrators defined as a new class: ```General_integrator```. These integrators are defined using Butcher tableau's and used in the ```integrate_general``` function (see further).
 
 Some functions are defined to run the simulation:
-* ```integrate```: This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep and if ADAPTIVE_RK45 is ture RK45 will be used. The available integrators are:
+* ```integrate```: This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep and if ADAPTIVE_RK45 is true then RK45 will be used. The available integrators are:
     - Forest Ruth
     - Forward Euler
     - Heun
@@ -41,6 +41,7 @@ Some functions are defined to run the simulation:
     - RK4
     - Velocity Verlet
     - Yoshida 4
+    - RK45: called by a boolean, any of the above given integrators should be given for the ```integrator``` parameter!
 * ```integrate_general```: This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep. This is essentially the same function as `integrate` with the only difference being that here the integrators are defined using Butcher tableau's. The available integrators are:
     - 3 over 8
     - Ralston4
@@ -54,7 +55,7 @@ Some functions are defined to run the simulation:
 * ```loop_h_general```: This function takes some given N-body initial conditions and runs the `integrate_general` function for a number of fixed timesteps in the given range.
 
 
-To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep, however to use RK45 the boolean ```ADAPTIVE_TIME_STEP``` should be set to false and ```ADAPTIVE_RK45``` should be set to true. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
+To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep, however to use RK45 the boolean ```ADAPTIVE_TIME_STEP``` should be set to false and ```ADAPTIVE_RK45``` should be set to true. To use ```ADAPTIVE_RK45``` the integrator type needs to be 'friend'. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
 
 ```cpp
 // File with the initial conditions to be read from the `Initial_conditions` folder
@@ -115,7 +116,7 @@ $$
 
 * **`scaling_general`**: Text files with the execution time in milliseconds for 1000 steps for 2- to 99-body systems for all the ```General_integrator``` class integrators (see **`main.cpp`**) with a timestep of 0.01 y.
 
-* **`temperatures`**: IDK
+* **`temperatures`**: This is only relevant for systems with three stars and a planet. This folder contains text files with the temperature of the planet.
 
 * **`traj`**: Text files containing the calculated trajectories for a given system with a given integrator, timestep and simulation time. 
   * Naming convention used: *SystemName_integrator_tmax_h(_adaptive).txt*
