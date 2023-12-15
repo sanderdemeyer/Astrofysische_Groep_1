@@ -156,7 +156,7 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
 }
 
 /**
- * This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep. This is essentially the same function as `integrate` with the pnly difference being that here the integrators are defined using Butcher tableau's.
+ * This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep. This is essentially the same function as `integrate` with the only difference being that here the integrators are defined using Butcher tableau's.
  *
  * @param in_cond A string with the filename of the N-body initial condition to be read from the `initial_conditions` folder. The format of the file has been explained in the README file.
  * @param integrator A string with the name of the integrator to be used. This should be one of the `General_integrator` class defined in `classes.cpp`. The available integrators are listed in the README file.
@@ -286,6 +286,28 @@ void loop_h (std::string in_cond, std::string integrator, double tmax, double hm
     while (t <= hmax)
     {
         integrate (in_cond, integrator, t, tmax, false, false);
+        t *= step;
+    }
+}
+
+/**
+ * This function takes some given N-body initial conditions and runs the `integrate_general` function for fixed timestep using different timesteps in the given range.
+ *
+ * @param in_cond A string with the filename of the N-body initial condition to be read from the `initial_conditions` folder. The format of the file has been explained in the README file.
+ * @param integrator A string with the name of the integrator to be used. This should be one of the friend void integrators defined in `classes.cpp`. The available integrators are listed in the README file.
+ * @param tmax The total time to be simulated
+ * @param hmin The minimum timestep to be used
+ * @param hmax The maximum timestep to be used
+ * @param step The factor by which to loop from `hmin` to `hmax`. Should be greater than 1.
+ * @return The files with the trajectories and energies are saved in the `traj` and `energy` folder respectively. The format of the file has been explained in the README file. The naming convetion is:
+ * `SystemName_integrator_tmax_h(_adaptive).txt`
+ */
+void loop_h_general (std::string in_cond, std::string integrator, double tmax, double hmin, double hmax, int step){
+    std::list<double> H;
+    double t = hmin;
+    while (t <= hmax)
+    {
+        integrate_general (in_cond, integrator, t, tmax, false);
         t *= step;
     }
 }
