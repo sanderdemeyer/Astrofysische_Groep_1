@@ -10,7 +10,8 @@ This is the final code for the N-body simulation. The units used in the simulati
 * G = 39.473107 $[AU]^3 M_{\odot}^{-1} [yr]^{-2}$
 
 The trajectories and energies for are stored in folders with the names of the corresponding systems in the **`traj`** en **`energy`** folders respectively. The naming convention used in each subfolder is:
-*SystemName_integrator_tmax_h(_adaptive).txt*. The initial conditions are read from the **`Initial_conditions`** folder. The filename should not contain any underscores as they are used as separators. The files have the given format:
+*SystemName_integrator_tmax_h(_adaptive).txt*. The format of the files is explained in the next section. The initial conditions are read from the **`Initial_conditions`** folder. The filename should not contain any underscores as they are used as separators. The initial condition files have the given format:
+
 $$
 \begin{gather*}
 m_1 \quad x_1 \quad y_1 \quad z_1 \quad v_1 \quad v_1 \quad v_1 \\
@@ -66,7 +67,7 @@ bool ADAPTIVE_RK45 = false;
 ```
 Only these need to be changed in the code to run other simulations.
 
-## Contents of the different folders
+## Contents of the different folders \ref{}
 * **`ani_traj`**: The animated trajectories for some chosen initial conditions. 
     * Naming convention used: *SystemName_integrator_(with_traj_)(3D/projection).gif*
 
@@ -76,6 +77,7 @@ Only these need to be changed in the code to run other simulations.
 * **`energy_reg`**: Text files with total energy at each step for simulation with regularization.
 
 * **`Initial_conditions`**: Text files with some interesting initial conditions. The filename should not contain any underscores as they are used as separators. The files have the given format:
+
 $$
 \begin{gather*}
 m_1 \quad x_1 \quad y_1 \quad z_1 \quad v_1 \quad v_1 \quad v_1 \\
@@ -105,6 +107,7 @@ $$
 * **`traj`**: Text files containing the calculated trajectories for a given system with a given integrator, timestep and simulation time. 
   * Naming convention used: *SystemName_integrator_tmax_h(_adaptive).txt*
   * The files have the given format:
+
 $$
 \begin{gather*}
 t_0 \quad x_{1, t_0} \quad y_{1, t_0} \quad z_{1, t_0} \quad x_{2, t_0} \quad y_{2, t_0} \quad z_{2, t_0} \quad \cdots \quad x_{n, t_0} \quad y_{n, t_0} \quad z_{n, t_0}\\
@@ -118,46 +121,6 @@ $$
 
 * **`visual`**: Python code used for the visualization of the N-body trajectories.
 
-## **`main.cpp`**
-### Input
-```Provide the initial conditions:```  
-The initial conditions are stored in the **`Initial_conditions`** folder. Only the filename should be provided. The txt file should have the given format:
-
-$$
-\begin{gather*}
-m_1 \quad x_1 \quad y_1 \quad z_1 \quad v_1 \quad v_1 \quad v_1 \\
-m_2 \quad x_2 \quad y_2 \quad z_2 \quad v_2 \quad v_2 \quad v_2\\
-\vdots\\
-m_n \quad x_n \quad y_n \quad z_n \quad v_n \quad v_n \quad v_n
-\end{gather*}
-$$
-
-
-```Which integrator would you like to use:```  
-Answer with one of the following:
-- Forward Euler
-- Heun
-- Heun3
-- Ralston
-- Ralston3
-- RK3
-- RK4
-- Forest Ruth
-- PEFRL
-- Velocity Verlet
-- Position Verlet
-- Leapfrog
-- Yoshida_4
-
-```Provide the initial timestep: ```  
-Give the initial timestep.
-
-```Provide the number of iterations: ```  
-Give the number of iterations.
-
-### Output
-The trajectories are stored in the **`traj`** folder and the energies are stored in the **`energy`** folder. The naming convention is:
-*SystemName_integrator_tmax_h(_adaptive).txt*
 
 ## **`scaling_friend.cpp`**
 Calculates the execution time in milliseconds for 1000 steps for 2- to 99-body systems for all the ```void friend``` class integrators with a timestep of 0.01 y. The integrators studied are:
