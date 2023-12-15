@@ -359,8 +359,8 @@ def plot(file, dim, title, lim=None,project=False, name='trajectories', label= '
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-trajectory = 'Burrau_RK4_70.000000_0.001000_adaptive.txt'
-type_plot = 'both'
+trajectory = 'Burrau/Burrau_RK4_70.000000_0.001000_adaptive.txt'
+type_plot = 'plot'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection
@@ -382,11 +382,12 @@ tstep = 5
 # ----------------------------------------------------------------------------
 name = trajectory.rstrip('.txt')
 args = name.split('_')
-title = "{} integrated using {} \n tmax= {}, h= {}".format(args[0], args[1], args[2], args[3])
+system = args[0].split('/')[0]
+title = "{} integrated using {} \n tmax= {}, h= {}".format(system, args[1], args[2], args[3])
 if len(args) == 5:
     title += "\n with adaptive timestep"
 
-filename = args[0] + '_' + args[1] 
+filename = system + '_' + args[1] 
 
 if type_plot == 'animate':
     #tstep = int(input('How much should one second of video be equal to the time used in simulation: \n'))

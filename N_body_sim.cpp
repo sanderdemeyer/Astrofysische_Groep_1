@@ -13,8 +13,11 @@
 #include <cassert>
 #include <filesystem>
 #include <algorithm>
+#include <list>
 
 #include "classes.cpp"
+
+namespace fs = std::filesystem;
 
 
 typedef void (*integ) (NSystem&, double);
@@ -57,6 +60,13 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4); // System name based on initial conditions
 
+    // Create folders for trajectories and energies of the system
+    std::string outdir_traj = "traj/" + SystemName;
+    fs::create_directories(outdir_traj);
+
+    std::string outdir_energy = "energy/" + SystemName;
+    fs::create_directories(outdir_energy);
+
     // start the execution
     int time_start = time(NULL);
 
@@ -68,7 +78,7 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
         filename += "_adaptive"; // If ADAPTIVE_TIME_STEP = true, this is added to the file name.
     }
 
-    std::ofstream outfile("traj/" + filename + ".txt");
+    std::ofstream outfile(outdir_traj + "/" + filename + ".txt");
     outfile << std::setprecision(12);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
@@ -78,7 +88,7 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     outfile << '\n';
 
 
-    std::ofstream outfile_energy("energy/" + filename + ".txt");
+    std::ofstream outfile_energy(outdir_energy + "/" + filename + ".txt");
     outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
@@ -164,6 +174,13 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4); // Systemname based on initial conditions
 
+    // Create folders for trajectories and energies of the system
+    std::string outdir_traj = "traj/" + SystemName;
+    fs::create_directories(outdir_traj);
+
+    std::string outdir_energy = "energy/" + SystemName;
+    fs::create_directories(outdir_energy);
+
     // start the execution
     int time_start = time(NULL);
 
@@ -175,7 +192,7 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
         filename += "_adaptive"; // If ADAPTIVE_TIME_STEP = true, this is added to the file name.
     }
 
-    std::ofstream outfile("traj/" + filename + ".txt");
+    std::ofstream outfile(outdir_traj +"/" + filename + ".txt");
     outfile << std::setprecision(12);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
@@ -185,7 +202,7 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
     outfile << '\n';
 
 
-    std::ofstream outfile_energy("energy/" + filename + ".txt");
+    std::ofstream outfile_energy(outdir_energy +"/" + filename + ".txt");
     outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
@@ -251,10 +268,31 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
     std::cout << "Total number of driver evaluations per time step is \n" << number_of_iterations << " iterations with " << driver_evaluations << " driver evaluations per time step gives " << driver_evaluations*number_of_iterations << " driver evaluations in total." << std::endl;
 }
 
+/**
+ * This function takes some given N-body initial conditions and runs the `integrate` function for fixed timestep using different timesteps in the given range.
+ *
+ * @param in_cond A string with the filename of the N-body initial condition to be read from the `initial_conditions` folder. The format of the file has been explained in the README file.
+ * @param integrator A string with the name of the integrator to be used. This should be one of the friend void integrators defined in `classes.cpp`. The available integrators are listed in the README file.
+ * @param tmax The total time to be simulated
+ * @param hmin The minimum timestep to be used
+ * @param hmax The maximum timestep to be used
+ * @param step The factor by which to loop from `hmin` to `hmax`. Should be greater than 1.
+ * @return The files with the trajectories and energies are saved in the `traj` and `energy` folder respectively. The format of the file has been explained in the README file. The naming convetion is:
+ * `SystemName_integrator_tmax_h(_adaptive).txt`
+ */
+void loop_h (std::string in_cond, std::string integrator, double tmax, double hmin, double hmax, int step){
+    std::list<double> H;
+    double t = hmin;
+    while (t <= hmax)
+    {
+        integrate (in_cond, integrator, t, tmax, false, false);
+        t *= step;
+    }
+}
 
 int main(){
     std::string in_cond = "Burrau.txt"; // File with the initial conditions to be read from the `Initial_conditions` folder
-    std::string type_integ = "friend"; // The type of integrator to be used. By default the `friend void` type integrators are used.
+    std::string type_integ = "general"; // The type of integrator to be used. By default the `friend void` type integrators are used.
     std::string integrator = "RK4"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
     double h = 0.001; // The (initial) timestep.
     double tmax = 70; // Total time considered in the simulation
@@ -266,4 +304,7 @@ int main(){
     } else{
         integrate(in_cond, integrator, h, tmax, ADAPTIVE_TIME_STEP, ADAPTIVE_RK45);
     }
+
+    // This can be commented out to test the `loop_h` function
+    // loop_h(in_cond, integrator, tmax, h, 0.1, 10);
 }
