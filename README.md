@@ -6,7 +6,7 @@ This is the final code for the N-body simulation. The units used in the simulati
 
 * length: [AU]
 * time: [yr]
-* mass: [$M_{\odot}$]
+* mass: $[M_{\odot}]$
 * G = 39.473107 $[AU]^3 M_{\odot}^{-1} [yr]^{-2}$
 
 The trajectories and energies for are stored in folders with the names of the corresponding systems in the **`traj`** en **`energy`** folders respectively. The naming convention used in each subfolder is:
