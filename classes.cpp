@@ -13,6 +13,7 @@
 #include <algorithm>
 
 // represents a 3-D vector
+// This implements some simple Arithmetic like the norm, the angle, scalar multiplication and division, addition, and subtraction.
 class Vec {
     double _x;
     double _y;
@@ -30,8 +31,8 @@ class Vec {
     double norm2() const {return _x*_x + _y*_y + _z*_z;}
     double norm3() const {return pow(_x*_x + _y*_y + _z*_z, 1.5);}
 
-    //friend Vec4 transform_vector_forward(Vec r);
-    //friend Vec transform_vector_backward(Vec4 r);
+    double angle() const {return acos((_x)/norm());}
+    double angle(const Vec other) const {return acos((_x*other.x() + _y*other.y() + _z*other.z())/(norm()*other.norm()));}
 
     Vec& operator*=(double s) {
         _x *= s;
@@ -89,11 +90,11 @@ std::vector<Vec> operator+(std::vector<Vec> a, std::vector<Vec> b){
 }
 
 class NSystem {
-
+// This is the class which represents the current positions and velocities of all the bodies present in the system, together with their masses.
 private:
-    std::vector<Vec> _positions;
-    std::vector<Vec> _velocities;
-    std::vector<double> _masses;
+    std::vector<Vec> _positions; // Vector containing all the positions
+    std::vector<Vec> _velocities; // Vector containing all the velocites
+    std::vector<double> _masses; // Vector containing all the masses
 
 public:
     NSystem(std::vector<Vec> positions, std::vector<Vec> velocities, std::vector<double> masses){
@@ -111,6 +112,7 @@ public:
         _masses = masses;
     }
 
+    // Make the different integrators friend of this class, such that it can access the private properties.
     friend void Forward_Euler(NSystem& y_n, double h);
     friend void RK2_step(NSystem& y_n, double h);
     friend void Heun(NSystem& y_n, double h);
@@ -126,11 +128,14 @@ public:
     friend void Leapfrog_friend(NSystem& y_n, double h);
     friend void Yoshida_4_friend(NSystem& y_n, double h);
 
+    // Simple getter functions
     std::vector<Vec> positions() const { return _positions; }
     std::vector<Vec> velocities() const { return _velocities; }
     std::vector<double> masses() const { return _masses; }
-    int n() const { return _masses.size(); }
 
+    int n() const { return _masses.size(); } // Get the size of the system, namely the number of bodies
+
+    // Underlying functions define some basic arithmetic.
     NSystem& operator*=(double s) {
         for (size_t i=0; i!=_positions.size(); ++i) {
             _positions[i] *= s;
@@ -163,6 +168,7 @@ public:
         return *this;
     }
 
+    // This function evaluates the driver function. 
     NSystem evaluate_g(){
         std::vector<Vec> gs;
         for (size_t i=0; i!=_positions.size(); ++i) {
@@ -178,7 +184,8 @@ public:
         return NSystem(_velocities, gs, _masses);
     }
 
-    double get_energy(){
+    double get_energy(){ 
+        // This returns the total energy of the system.
         double E_kin = 0.0;
         double E_pot = 0.0;
         for (size_t i=0; i!=_positions.size(); ++i) {
@@ -191,11 +198,9 @@ public:
         }
         return E_kin + E_pot;
     }
-    double get_energy_regularized(){
-        return 0; // TO DO
-    }
 
     void print_positions(){
+        // Print all the positions of the different bodies.
         std::cout << "Positions are ";
         for (size_t i = 0; i < _positions.size(); i++){
             print(_positions[i]); 
@@ -204,6 +209,7 @@ public:
 
 };
 
+// The underlying lines define some extra basic arithmetic.
 NSystem operator*(NSystem a, double s) { return a *= s; }
 NSystem operator*(double s, NSystem a) { return a *= s; }
 NSystem operator/(NSystem a, double s) { return a /= s; }
@@ -211,6 +217,7 @@ NSystem operator+(NSystem a, NSystem b) { return a += b; }
 NSystem operator-(NSystem a, NSystem b) { return a -= b; }
 
 double compare_solutions(NSystem a, NSystem b){
+    // Compute the 'distance' between two solutions. This is used for the adaptive timestep methods.
     double error = 0;
     for (size_t i = 0; i < a.positions().size(); i++){
         error += (a.positions()[i] - b.positions()[i]).norm2();
@@ -220,6 +227,8 @@ double compare_solutions(NSystem a, NSystem b){
 }
 
 std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> masses){
+    // This does the same as the function evaluate_g, but considers only the driver functions and not r' = v.
+    // This returns a vector of Vec objects containing the driver functions, instead of a new object of the class NSystem.
     std::vector<Vec> gs;
     for (size_t i=0; i!=positions.size(); ++i) {
         Vec g = Vec(0, 0, 0);
@@ -233,6 +242,9 @@ std::vector<Vec> evaluate_a(std::vector<Vec> positions, std::vector<double> mass
     return gs;
 }
 
+// The underlying functions are the integrator functions.
+// These functions take an object of NSystem and a timestep h, and updates the NSystem over a time h.
+// The return type is void, since the object is passed by reference and updated there.
 
 void Forward_Euler(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
@@ -326,8 +338,6 @@ void Leapfrog_friend(NSystem& y_n, double h){
     y_n._velocities = y_n._velocities + h*evaluate_a(y_n._positions, y_n._masses);
 }
 
-
-
 void Yoshida_4_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + (YOSHIDA_W1/2)*h*y_n._velocities;
     y_n._velocities = y_n._velocities + YOSHIDA_W1*h*evaluate_a(y_n._positions, y_n._masses);
@@ -338,7 +348,23 @@ void Yoshida_4_friend(NSystem& y_n, double h){
     y_n._positions = y_n._positions + (YOSHIDA_W1/2)*h*y_n._velocities;
 }
 
+void Yoshida_4_new(std::vector<Vec>& x, std::vector<Vec>& v, std::vector<double> masses, double h){
+    // This is equivalent to the function Yoshida_4_friend. By default, Yoshida_4_friend is used.
+    x = x + (YOSHIDA_W1/2)*h*v;
+    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
+    v = v +  YOSHIDA_W0*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
+    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
+    x = x + (YOSHIDA_W1/2)*h*v;
+}
+ 
 void RK45_step(NSystem& y_n, double& h, double tolerance){
+    // This is the function that defines the RK45 method, also called the Runge–Kutta–Fehlberg method
+    // This function evaluates the error by comparing the solutions of a 4th order accurate and a 5th order accurate approximation.
+    // This is more efficient than the other way that adaptive timestep control is implemented in this code, 
+    // which updates the system twice and independently, and thus has more overhead than this method, which reuses some driver function evaluations.
+
     NSystem k1 = y_n.evaluate_g() * h;
     NSystem k2 = (y_n + 0.25*k1).evaluate_g()*h;
     NSystem k3 = (y_n + (3.0/32)*k1 + (9.0/32)*k2).evaluate_g()*h;
@@ -359,6 +385,7 @@ void RK45_step(NSystem& y_n, double& h, double tolerance){
 
 
 NSystem getvalues(std::string inputfile) {
+    // This initializes an instance of the class NSystem based on a text file containing the initial conditions.
     std::ifstream MyreadFile(inputfile);
 
     std::vector<Vec> ini_positions;
@@ -388,22 +415,15 @@ NSystem getvalues(std::string inputfile) {
 }
 
 
-void Yoshida_4_new(std::vector<Vec>& x, std::vector<Vec>& v, std::vector<double> masses, double h){
-    x = x + (YOSHIDA_W1/2)*h*v;
-    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
-    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
-    v = v +  YOSHIDA_W0*h*evaluate_a(x, masses);
-    x = x + (YOSHIDA_W0+YOSHIDA_W1)*(h/2)*v;
-    v = v + YOSHIDA_W1*h*evaluate_a(x, masses);
-    x = x + (YOSHIDA_W1/2)*h*v;
-}
-
-
 class General_integrator{
+    // This class defines a general integrator, based only on its Butcher Tableau.
+    // Instead of defining the integrator to be a function, the integrator is an object of the class General Integrator,
+    // for which the operator() is overloaded.
+    // This is very useful for the higher-order integrators, for which implementing different functions is both cumbersome and error-prone.
     private: 
-        int length;
-        std::vector<double> a_table;
-        std::vector<double> b_table;
+        int length; // Length of the Butcher Tableau
+        std::vector<double> a_table; // Bulk of the Butcher tableau, which claculates the different values of k1, k2, etc...
+        std::vector<double> b_table; // Last line of the Butcher tableau, which calculates the updated value of the system based on the values of k1, k2, etc...
     public:
         General_integrator(){}
 
@@ -414,37 +434,6 @@ class General_integrator{
         }
 
         General_integrator(std::string integr) {
-            // if (_normal) {
-            //     if (!strcmp(integr, "RK4")) {
-            //         integrator_function = RK4_step;
-            //     } else if (!strcmp(integr, "Forward_Euler")) {
-            //         integrator_function = Forward_Euler;
-            //     } else if (!strcmp(integr, "RK2")) {
-            //         integrator_function = RK2_step;
-            //     } else if (!strcmp(integr, "Heun")) {
-            //         integrator_function = Heun;
-            //     } else if (!strcmp(integr, "Heun3")) {
-            //         integrator_function = Heun3;
-            //     } else if (!strcmp(integr, "Ralston")) {
-            //         integrator_function = Ralston;
-            //     } else if (!strcmp(integr, "Ralston3")) {
-            //         integrator_function = Ralston3;
-            //     } else if (!strcmp(integr, "RK3")) {
-            //         integrator_function = RK3_step;
-            //     } else if (!strcmp(integr, "Forrest Ruth")) {
-            //         integrator_function = Forest_Ruth_friend;
-            //     } else if (!strcmp(integr, "PEFRL")) {
-            //         integrator_function = PEFRL_friend;
-            //     } else if (!strcmp(integr, "Velocity Verlet")) {
-            //         integrator_function = Velocity_Verlet_friend;
-            //     } else if (!strcmp(integr, "Position Verlet")) {
-            //         integrator_function = Position_Verlet_friend;
-            //     } else if (!strcmp(integr, "Leapfrog")) {
-            //         integrator_function = Leapfrog_friend;
-            //     } else if (!strcmp(integr, "Yoshida_4")) {
-            //         integrator_function = Yoshida_4_friend;
-            //     }                    
-            // } else {
             if (integr.compare("RK4") == 0) {
                 a_table = {0.0,0.0,0.0,0.0 , 0.5,0.0,0.0,0.0 , 0.0,0.5,0.0,0.0 , 0.0,0.0,1.0,0.0};
                 b_table = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
