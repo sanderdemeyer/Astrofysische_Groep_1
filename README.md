@@ -51,21 +51,34 @@ Some functions are defined to run the simulation:
     - SSPRK3
     - Wray3
 * ```loop_h```: This function takes some given N-body initial conditions and runs the `integrate` function for fixed timestep using different timesteps in the given range.
-* ```loop_h_general```: This function takes some given N-body initial conditions and runs the `integrate_general` function for fixed timestep using different timesteps in the given range.
+* ```loop_h_general```: This function takes some given N-body initial conditions and runs the `integrate_general` function for a number of fixed timesteps in the given range.
 
 
 To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep, however to use RK45 the boolean ```ADAPTIVE_TIME_STEP``` should be set to false and ```ADAPTIVE_RK45``` should be set to true. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
 
 ```cpp
-std::string in_cond = "Burrau.txt"; 
-std::string type_integ = "general"; 
-std::string integrator = "RK4"; 
-double h = 0.001; 
-double tmax = 70; 
-bool ADAPTIVE_TIME_STEP = true; 
+// File with the initial conditions to be read from the `Initial_conditions` folder
+std::string in_cond = "Burrau.txt";
+ // The type of integrator to be used. By default the `friend void` type integrators are used.
+std::string type_integ = "general";
+// he type of integrator to be used. For each type, available integrators are listed in the README file.
+std::string integrator = "RK4";
+// The (initial) timestep.
+double h = 0.001;
+ // Total time considered in the simulation
+double tmax = 70;
+// Whether or not to use an adaptive timestep
+bool ADAPTIVE_TIME_STEP = true;
+// Whether or not to use RK45 embedded adaptive timestep. If you want to use this, ADAPTIVE_TIME_STEP should be set to false. Only implemented in the `integrate` function.
 bool ADAPTIVE_RK45 = false;
+// The following should only be changed to loop over run the simulation for different timesteps.
+bool h_loop = false;
+// the maximum timestep
+double hmax = 0.1;
+// the factor by which to loop from `h` to `hmax`. Should be greater than 1.
+int step = 10;
 ```
-Only these need to be changed in the code to run other simulations.
+Only these need to be changed in the code to run other simulations. To loop over different timesteps ```h_loop``` should be set to true and ```hmax``` and ```step``` should be given.
 
 ## Contents of the different folders
 * **`ani_traj`**: The animated trajectories for some chosen initial conditions. 

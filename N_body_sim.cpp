@@ -320,13 +320,16 @@ int main(){
     double tmax = 70; // Total time considered in the simulation
     bool ADAPTIVE_TIME_STEP = true; // Whether or not to use an adaptive timestep
     bool ADAPTIVE_RK45 = false; // Whether or not to use RK45 embedded adaptive timestep. If you want to use this, ADAPTIVE_TIME_STEP should be set to false. Only implemented in the `integrate` function.
+    // The following should only be changed to loop over run the simulation for different timesteps.
+    bool h_loop = true;
+    double hmax = 0.1; // the maximum timestep
+    int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
 
-    if (type_integ == "general"){
+    if (h_loop){
+        loop_h(in_cond, integrator, tmax, h, hmax, step);
+    } else if (type_integ == "general"){
         integrate_general(in_cond, integrator, h, tmax, ADAPTIVE_TIME_STEP);
     } else{
         integrate(in_cond, integrator, h, tmax, ADAPTIVE_TIME_STEP, ADAPTIVE_RK45);
     }
-
-    // This can be commented out to test the `loop_h` function
-    // loop_h(in_cond, integrator, tmax, h, 0.1, 10);
 }
