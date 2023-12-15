@@ -3,12 +3,15 @@ Code for the N-body simulation.
 
 The trajectories and energies for different integrators are stored in **`traj`** en **`energy`** folders respectively.
 
-## **`main.cpp`**
-Final README for main comes here.
+## **`N_body_sim.cpp`**
+This is the final code for the N-body simulation. The functions defined are:
+* ```integrate```: This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep and if ADAPTIVE_RK45 is ture RK45 will be used.
+* ```integrate_general```: This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep. This is essentially the same function as `integrate` with the pnly difference being that here the integrators are defined using Butcher tableau's.
+* ```loop_h```: This function takes some given N-body initial conditions and runs the `integrate` function for fixed timestep using different timesteps in the given range.
 
 ## Contents of the different folders
 * **`ani_traj`**: The animated trajectories for some chosen initial conditions. 
-    * Naming convention used: *SystemName_integrator_(with_traj_)(3D/projection).mkv*
+    * Naming convention used: *SystemName_integrator_(with_traj_)(3D/projection).gif*
 
 * **`energy`**: Text files with the total energy at each step for given initial conditions and integrator.
     * Naming convention used: *SystemName_integrator_tmax_h(_adaptive).txt*
