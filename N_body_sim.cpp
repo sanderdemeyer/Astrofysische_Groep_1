@@ -326,7 +326,11 @@ int main(){
     int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
 
     if (h_loop){
-        loop_h(in_cond, integrator, tmax, h, hmax, step);
+        if (type_integ == "general"){
+            loop_h_general(in_cond, integrator, tmax, h, hmax, step);
+        }else{
+            loop_h(in_cond, integrator, tmax, h, hmax, step);
+        }
     } else if (type_integ == "general"){
         integrate_general(in_cond, integrator, h, tmax, ADAPTIVE_TIME_STEP);
     } else{

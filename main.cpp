@@ -18,6 +18,7 @@
 
 typedef void (*integ) (NSystem&, double);
 
+namespace fs = std::filesystem;
 
 int main(){
 
@@ -61,6 +62,21 @@ int main(){
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4); // Systemname based on initial conditions
 
+    // Create folders for trajectories and energies of the system
+    std::string outdir_traj = "traj/" + SystemName;
+    fs::create_directories(outdir_traj);
+
+    std::string outdir_energy = "energy/" + SystemName;
+    fs::create_directories(outdir_energy);
+
+    // Create folders for trajectories and energies of the system
+    std::string outdir_dist = "dist_mercury/" + SystemName;
+    fs::create_directories(outdir_dist);
+
+    std::string outdir_temp = "temperatures/" + SystemName;
+    fs::create_directories(outdir_temp);
+
+
     // start the execution
     int time_start = time(NULL);
 
@@ -72,7 +88,7 @@ int main(){
         filename += "_adaptive"; // If ADAPTIVE_TIME_STEP = true, this is added to the file name.
     }
 
-    std::ofstream outfile("traj/" + filename + ".txt");
+    std::ofstream outfile(outdir_traj +"/" + filename + ".txt");
     outfile << std::setprecision(12);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){ // add the positions to the trajectory file
@@ -81,12 +97,12 @@ int main(){
     outfile << '\n';
 
 
-    std::ofstream outfile_energy("energy/" + filename + ".txt");
+    std::ofstream outfile_energy(outdir_energy+"/" + filename + ".txt");
     outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
-    std::ofstream outfile_temps("temperatures/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
-    std::ofstream outfile_distance_planets("dist_mercury/" + filename + ".txt");
+    std::ofstream outfile_temps(outdir_temp + "/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
+    std::ofstream outfile_distance_planets(outdir_dist+"/" + filename + ".txt");
     outfile_distance_planets << std::setprecision(8); // This is the file where the distances of all bodies to the first body in function of time will be saved. This is included for the analysis of the solar system 
 
     // ***** Important: If the integrator is implemented using functions, the second line should be commented out.                   ***** //
