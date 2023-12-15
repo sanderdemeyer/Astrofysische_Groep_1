@@ -54,7 +54,7 @@ int main(){
     double t = 0;
     bool ADAPTIVE_TIME_STEP;
     
-    std::ofstream outfile("accuracy_vs_cost_adaptive_more_data.txt");
+    std::ofstream outfile("Burrau/accuracy_vs_cost_adaptive.txt");
     outfile << std::setprecision(8);
 
 
@@ -63,16 +63,16 @@ int main(){
         outfile << integrator << ' ';
 
         //for (double exponent = 3.0; exponent < 15.5; exponent++) { // 8.5
-        for (double exponent = 1.0; exponent < 7.5; exponent++) { // 8.5
-            h = pow(10, -exponent/3);
-
+        for (double exponent = 0.0; exponent < 7.5; exponent++) { // 8.5
+            // h = pow(10, -exponent/3);
+            h = 0.0001;
             t = 0;
             tmax = 100;
-            in_cond = "perturbed-criss-cross.txt";
+            in_cond = "Burrau.txt";
             ADAPTIVE_TIME_STEP = true;
 
-            double Delta_max = pow(10, -10.0+exponent);
-            double Delta_min = pow(10, -12.0+exponent);
+            double Delta_max = pow(10, -3.0-exponent);
+            double Delta_min = pow(10, -4.0-exponent);
 
             std::string SystemName = in_cond.substr(0, in_cond.size()-4);
 
@@ -93,6 +93,9 @@ int main(){
             double energy_current;
 
             while(t < tmax){
+                // if (number_of_iterations % 10000 == 0){
+                //     std::cout << "h = " << h << std::endl;
+                // }
                 t+= h;
                 number_of_iterations++;
 

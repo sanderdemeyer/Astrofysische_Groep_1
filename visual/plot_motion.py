@@ -26,7 +26,8 @@ data = np.loadtxt("traj_reg/Reg_2D_Burrau_scaled_RK4_10000000_0.001000.txt", unp
 
 data = np.loadtxt("traj_reg/Reg_2D_collision_RK4_1000000_0.001000_0.500000.txt",unpack=True)
 
-data = np.loadtxt("traj/criss-cross_Yoshida_4_1000.000000_0.010000.txt",unpack=True)
+data = np.loadtxt("traj/Solar-System-New_PEFRL_70.000000_0.001000_adaptive.txt",unpack=True)
+
 
 data = np.array(data)
 
@@ -52,7 +53,7 @@ print(np.shape(data_new))
 """
 
 for body in range(number_of_bodies):
-    plt.scatter(data[1+3*body], data[2+3*body], s = 0.01, c = range(np.shape(data)[1]), label = f'Body {body+1}')
+    plt.scatter(data[1+3*body], data[2+3*body], s = 0.01, label = f'Body {body+1}')#, c = range(np.shape(data)[1]))
     #plt.scatter(data_new[1+3*body], data_new[2+3*body], s = 0.01, c = range(np.shape(data_new)[1]), label = f'Body {body+1}')
 #plt.scatter(x1, y1, s = 0.01, label = 'Body 1')
 #plt.scatter(x2, y2, s = 0.01, label = 'Body 2')
