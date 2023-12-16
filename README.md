@@ -94,10 +94,12 @@ Only these need to be changed in the code to run other simulations. To loop over
 
 ## Contents of the different folders
 * **`ani_traj`**: The animated trajectories for some chosen initial conditions. 
-    * Naming convention used: *SystemName_integrator_(with_traj_)(3D/projection).gif*
+    * Naming convention used: ``SystemName_integrator_(with_traj_)(3D/projection).gif``
+
+* **`dist_mercury`**: Distance and angle of all the bodies in the system with respect to the second body. This is used to study the Solar System and isn't valid for other initial conditions. 
 
 * **`energy`**: Text files with the total energy at each step for given initial conditions and integrator.
-    * Naming convention used: *SystemName_integrator_tmax_h(_adaptive).txt*
+    * Naming convention used: ``SystemName/SystemName_integrator_tmax_h(_adaptive).txt``
 
 * **`energy_reg`**: Text files with total energy at each step for simulation with regularization.
 
@@ -119,7 +121,7 @@ $$
 * **`plot_energy`**: Plots of the relative energy error in function of the simulated time for some chosen initial conditions and integrators.
 
 * **`plot_traj`**: Plotted trajectories of some chosen for initial conditions with a given integrator. The timestep used and the simulated time can be found in the titles of the plots.
-    * Naming convention used: *SystemName_integrator_(3D/projection).png*
+    * Naming convention used: ``SystemName_integrator_(3D/projection).png``
 
 * **`random_gauss`**: 2- to 99-body initial conditions according to a Gaussian distribution, generated using **`random_gauss.py`**. These are used to study the scaling behavior of the different integrators used.
 
@@ -130,7 +132,7 @@ $$
 * **`temperatures`**: This is only relevant for systems with three stars and a planet. This folder contains text files with the temperature of the planet.
 
 * **`traj`**: Text files containing the calculated trajectories for a given system with a given integrator, timestep and simulation time. 
-  * Naming convention used: *SystemName_integrator_tmax_h(_adaptive).txt*
+  * Naming convention used: ``SystemName/SystemName_integrator_tmax_h(_adaptive).txt``
   * The files have the given format:
 
 $$
