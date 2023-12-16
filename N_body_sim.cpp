@@ -61,12 +61,15 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     std::string SystemName = in_cond.substr(0, in_cond.size()-4); // System name based on initial conditions
 
     // Create folders for trajectories and energies of the system
+    fs::create_directories("traj");
     std::string outdir_traj = "traj/" + SystemName;
     fs::create_directories(outdir_traj);
 
+    fs::create_directories("energy");
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
+    fs::create_directories("dist_mercury");
     std::string outdir_dist = "dist_mercury/" + SystemName;
     fs::create_directories(outdir_dist);
 
@@ -190,12 +193,15 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
     std::string SystemName = in_cond.substr(0, in_cond.size()-4); // Systemname based on initial conditions
 
     // Create folders for trajectories and energies of the system
+    fs::create_directories("traj");
     std::string outdir_traj = "traj/" + SystemName;
     fs::create_directories(outdir_traj);
 
+    fs::create_directories("energy");
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
+    fs::create_directories("dist_mercury");
     std::string outdir_dist = "dist_mercury/" + SystemName;
     fs::create_directories(outdir_dist);
 

@@ -15,7 +15,7 @@
 
 #include "classes_regularization.cpp"
 
-#define ADAPTIVE_TIME_STEP false
+namespace fs = std::filesystem;
 
 
 typedef void (*integ) (NSystem&, double);
@@ -45,12 +45,14 @@ int main(){
     double h;
     double t = 0;
     double tmax;
+    bool ADAPTIVE_TIME_STEP;
 
     // **** Parameters to be chosen - Start **** //
     h = 0.001; // The (initial) timestep to be used for integration
     tmax = 300; // The total time to be simulated
     integrator = "PEFRL"; // the integrator used
     in_cond = "two-body-plane.txt"; // The initial conditions
+    ADAPTIVE_TIME_STEP = false; // whether or not to use dapative timestep
     int i = 0; // the number of iterations
     double transform_distance = 0.5; // The distance below which the system is regularized
 
@@ -81,6 +83,8 @@ int main(){
         filename += "_adaptive";
     }
 
+    fs::create_directories("traj_reg");
+
     std::ofstream outfile("traj_reg/" + filename + ".txt");
     outfile << std::setprecision(8);
     outfile << t;
@@ -89,7 +93,7 @@ int main(){
         }
         outfile << '\n';
 
-
+    fs::create_directories("energy_reg");
     std::ofstream outfile_energy("energy_reg/" + filename + ".txt");
     outfile_energy << std::setprecision(8);
     outfile_energy << 0 << ' ' << z.nsystem().get_energy() << '\n';
