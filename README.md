@@ -55,7 +55,7 @@ Some functions are defined to run the simulation:
 * ```loop_h_general```: This function takes some given N-body initial conditions and runs the `integrate_general` function for a number of fixed timesteps in the given range.
 
 
-To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep.   RK45 is an example of an integrator with embedded adapative timestep. To use RK45 the boolean ```ADAPTIVE_RK45``` should be set to true. To use ```ADAPTIVE_RK45``` the integrator type needs to be 'friend'. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
+To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep. To use RK45 the boolean ```ADAPTIVE_RK45``` should be set to true. To use ```ADAPTIVE_RK45``` the integrator type needs to be 'friend'. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
 
 ```cpp
 // File with the initial conditions to be read from the `Initial_conditions` folder
