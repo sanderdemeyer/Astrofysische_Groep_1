@@ -67,10 +67,6 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
-    // These two are only relevent for specific initial conditions and should be ignored for other.
-    std::string outdir_temp = "temperatures/" + SystemName;
-    fs::create_directories(outdir_temp);
-
     std::string outdir_dist = "dist_mercury/" + SystemName;
     fs::create_directories(outdir_dist);
 
@@ -103,7 +99,6 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
-    std::ofstream outfile_temp(outdir_temp + "/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
     std::ofstream outfile_distance_planets(outdir_dist + "/" + filename + ".txt");
     outfile_distance_planets << std::setprecision(8); // This is the file where the distances of all bodies to the first body in function of time will be saved. This is included for the analysis of the solar system and is not important for other systems.
 
@@ -149,15 +144,6 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
         outfile << '\n';
         
         outfile_energy << t << ' ' << z.get_energy() << '\n'; // This writes the total energy of all bodies together to the correct file.
-
-        // The following lines write the measure of temperature of the planet to the correct file.
-        // This assumes that body 3 is a planet (of which the temperature is calculated), and that bodies 0,1, and 2 are suns.
-        // Only relevent for certain initial conditions.
-        double temperature = 0;
-        for (int body_number = 0; body_number < N-1; body_number++){
-            temperature += 1/(z.positions()[body_number] - z.positions()[3]).norm2();
-        }
-        outfile_temp << t << ' ' << pow(temperature,0.25) << '\n';
 
         if (number_of_iterations == 1) {
             sun_mercury_start = z.positions()[1]-z.positions()[0]; // Overwrite the initial value (For the analysis of the perihelion precession of mercury)
@@ -210,10 +196,6 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
-    // These two are only relevent for specific initial conditions and should be ignored for other.
-    std::string outdir_temp = "temperatures/" + SystemName;
-    fs::create_directories(outdir_temp);
-
     std::string outdir_dist = "dist_mercury/" + SystemName;
     fs::create_directories(outdir_dist);
 
@@ -241,8 +223,6 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
     std::ofstream outfile_energy(outdir_energy +"/" + filename + ".txt");
     outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n'; // output the total energy of the system
-
-    std::ofstream outfile_temp(outdir_temp + "/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
 
     std::ofstream outfile_distance_planets(outdir_dist + "/" + filename + ".txt");
     outfile_distance_planets << std::setprecision(8); // This is the file where the distances of all bodies to the first body in function of time will be saved. This is included for the analysis of the solar system 
@@ -287,15 +267,6 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
         outfile << '\n';
         
         outfile_energy << t << ' ' << z.get_energy() << '\n'; // This writes the total energy of all bodies together to the correct file.
-
-        // The following lines write the measure of temperature of the planet to the correct file.
-        // This assumes that body 3 is a planet (of which the temperature is calculated), and that bodies 0,1, and 2 are suns.
-        // Only to be used for certain initial conditions. Should be ignored for others.
-        double temperature = 0;
-        for (int body_number = 0; body_number < N-1; body_number++){
-            temperature += 1/(z.positions()[body_number] - z.positions()[3]).norm2();
-        }
-        outfile_temp << t << ' ' << pow(temperature,0.25) << '\n';
         
         if (number_of_iterations == 1) {
             sun_mercury_start = z.positions()[1]-z.positions()[0]; // Overwrite the initial value (For the analysis of the perihelion precession of mercury)
@@ -368,7 +339,7 @@ void loop_h_general (std::string in_cond, std::string integrator, double tmax, d
 }
 
 int main(){
-    std::string in_cond = "Burrau.txt"; // File with the initial conditions to be read from the `Initial_conditions` folder
+    std::string in_cond = "two-body-plane.txt"; // File with the initial conditions to be read from the `Initial_conditions` folder
     std::string type_integ = "friend"; // The type of integrator to be used. By default the `friend void` type integrators are used.
     std::string integrator = "Forest Ruth"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
     double h = 0.001; // The (initial) timestep.
