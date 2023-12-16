@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "classes.cpp"
-
+#include "classes_regularization.cpp"
 // --------------------TO DO--------------------
 // switches (maak de main, plot, ... generiek): 
 //      integrator -> wordt ook gebruikt in naam output (incl. banen, energies, runtime, ...)
