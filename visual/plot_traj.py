@@ -193,6 +193,13 @@ def animate(file, dim, tstep, title, lim=None, line=False, project=False, label=
             ax.set_xlabel("x [AU]")
             ax.set_ylabel("y [AU]")
             scatters = [ax.scatter(traj[0][i][0], traj[0][i][1], s=2) for i in range(N)]
+            if label=='auto':
+                label = ['Body {}'.format(i) for i in range(1, N+1)]
+                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
+            elif label == None:
+                ax.legend_=None
+            else:
+                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
             if line:
                 x = np.zeros((N, n_t_org))
                 y = np.zeros((N, n_t_org))
@@ -203,13 +210,6 @@ def animate(file, dim, tstep, title, lim=None, line=False, project=False, label=
                 for i in range(N):
                     ax.plot(x[i],y[i], linestyle='dotted', linewidth=0.3)
             ax.grid(False)
-            if label=='auto':
-                label = ['Body {}'.format(i) for i in range(1, N+1)]
-                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
-            elif label == None:
-                ax.legend_=None
-            else:
-                ax.legend(label, loc='center left', bbox_to_anchor=(1.2, 0.5))
             fig.set_tight_layout(True)
             ani = animation.FuncAnimation(fig, update_2, frames=n_t, repeat=False)
             ani.save('{}/ani_traj/{}_projection.gif'.format(directory,name), fps=30, dpi=dpi)
@@ -360,13 +360,13 @@ def plot(file, dim, title, lim=None,project=False, name='trajectories', label= '
 # ----------------------------------------------------------------------------
 ## file to animate/plot
 trajectory = 'Burrau/Burrau_RK4_70.000000_0.001000_adaptive.txt'
-type_plot = 'plot'
+type_plot = 'animate'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection
-project = False
+project = True
 ## labels of the bodies. Options are: 'auto' which does automatic numbering, None which does not add labels, and a list ['body1', 'body2', ...] with the labels
-label = None
+label = "auto"
 ## limit of the axis, default is None or thus automatic
 lim = None
 #lim = [[-10,10], [-10,10], [-10,10]]
