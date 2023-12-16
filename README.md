@@ -41,7 +41,7 @@ Some functions are defined to run the simulation:
     - RK4
     - Velocity Verlet
     - Yoshida 4
-    - RK45: called by a boolean, any of the above given integrators should be given for the ```integrator``` parameter!
+    - RK45: called by a boolean, any of the above given integrators can be given for the ```integrator``` parameter as the function won't work without this!
 * ```integrate_general```: This function takes some given N-body initial conditions and calculates their trajectories and total energy for a given maximum time using a given integrator and initial timestep. All integrators can be used with an adaptive timestep. This is essentially the same function as `integrate` with the only difference being that here the integrators are defined using Butcher tableau's. The available integrators are:
     - 3 over 8
     - Ralston4
@@ -55,7 +55,7 @@ Some functions are defined to run the simulation:
 * ```loop_h_general```: This function takes some given N-body initial conditions and runs the `integrate_general` function for a number of fixed timesteps in the given range.
 
 
-To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep, however to use RK45 the boolean ```ADAPTIVE_TIME_STEP``` should be set to false and ```ADAPTIVE_RK45``` should be set to true. To use ```ADAPTIVE_RK45``` the integrator type needs to be 'friend'. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
+To use the code, the initial conditions, integrator type, integrator, (initial) timestep and the maximum time to simulate should be given. Along with whether to use adaptive timestep and whether to use RK45 integrator which has embedded adaptive timestep. All integrators can be used with adaptive timestep.   RK45 is an example of an integrator with embedded adapative timestep. To use RK45 the boolean ```ADAPTIVE_RK45``` should be set to true. To use ```ADAPTIVE_RK45``` the integrator type needs to be 'friend'. An example to integrate the Burrau initial conditions for 70 years using an initial timestep of 0.001 year using the RK4 integrator of the type ```General_integrator``` with adaptive timestep is:
 
 ```cpp
 // File with the initial conditions to be read from the `Initial_conditions` folder
@@ -68,10 +68,10 @@ std::string integrator = "RK4";
 double h = 0.001;
  // Total time considered in the simulation
 double tmax = 70;
+// Whether or not to use RK45 embedded adaptive timestep. Only implemented in the `integrate` function.
+bool ADAPTIVE_RK45 = false;
 // Whether or not to use an adaptive timestep
 bool ADAPTIVE_TIME_STEP = true;
-// Whether or not to use RK45 embedded adaptive timestep. If you want to use this, ADAPTIVE_TIME_STEP should be set to false. Only implemented in the `integrate` function.
-bool ADAPTIVE_RK45 = false;
 // The following should only be changed to loop over run the simulation for different timesteps.
 bool h_loop = false;
 // the maximum timestep

@@ -69,7 +69,6 @@ int main(){
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
-    // Create folders for trajectories and energies of the system
     std::string outdir_dist = "dist_mercury/" + SystemName;
     fs::create_directories(outdir_dist);
 

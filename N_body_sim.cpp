@@ -67,14 +67,25 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
+    // These two are only relevent for specific initial conditions and should be ignored for other.
+    std::string outdir_temp = "temperatures/" + SystemName;
+    fs::create_directories(outdir_temp);
+
+    std::string outdir_dist = "dist_mercury/" + SystemName;
+    fs::create_directories(outdir_dist);
+
     // start the execution
     int time_start = time(NULL);
 
     NSystem z = getvalues("Initial_conditions/" + in_cond); // Create an object of the class NSystem that correctly initialises the different bodies, based on the initial conditions.
     int N = z.n(); // N is the number of bodies
 
+    if (ADAPTIVE_RK45){
+        integrator = "RK45";
+    }
+
     std::string filename = SystemName + "_" + integrator + "_" + std::to_string(tmax) + "_" + std::to_string(h);
-    if (ADAPTIVE_TIME_STEP){
+    if (not ADAPTIVE_RK45 and ADAPTIVE_TIME_STEP){
         filename += "_adaptive"; // If ADAPTIVE_TIME_STEP = true, this is added to the file name.
     }
 
@@ -82,7 +93,7 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     outfile << std::setprecision(12);
     outfile << t;
     for (int body_number = 0; body_number < N; body_number++){
-        // add the positions to the trajectory file
+        // add the initial positions to the trajectory file
             outfile << ' ' << z.positions()[body_number].x() << ' ' << z.positions()[body_number].y() << ' ' << z.positions()[body_number].z() << ' ';
         }
     outfile << '\n';
@@ -92,7 +103,9 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     outfile_energy << std::setprecision(16);
     outfile_energy << t << ' ' << z.get_energy() << '\n';
 
-    std::ofstream outfile_distances("temperatures/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
+    std::ofstream outfile_temp(outdir_temp + "/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
+    std::ofstream outfile_distance_planets(outdir_dist + "/" + filename + ".txt");
+    outfile_distance_planets << std::setprecision(8); // This is the file where the distances of all bodies to the first body in function of time will be saved. This is included for the analysis of the solar system and is not important for other systems.
 
     integ integrator_function = functions[integrator]; // Select the integrator.
 
@@ -100,11 +113,18 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
     int driver_evaluations = get_driver_evaluations(integrator); // The number of driver evaluations, to be used in the analysis of the accuracy vs cost plot
     std::cout << "Number of driver evaluations per time step is " << driver_evaluations << std::endl;
 
+    Vec sun_mercury_start = Vec(1, 0, 0); // For the analysis of the perihelion precession of mercury: 
+    //sun_mercury_start is the vector with respect to which the vectors connecting mercury and the sun (in function of time) will be calculated. 
+    // Using this vector, angles can be calculated, which will be necessary to calculate the angle for which the perihelion occurs.
+    // This line initializes this variable, but will later be overwritten. 
+
     while(t < tmax){
         t+= h; // Progress the time
         number_of_iterations++;
 
-        if (ADAPTIVE_TIME_STEP){ // Progress the number of iterations
+        if (ADAPTIVE_RK45){
+            RK45_step(z, h, 1e-5); // This updates both the system and the timestep using the RK45 method. 1e-5 is the error parameter.
+        } else if (ADAPTIVE_TIME_STEP){ // Progress the number of iterations
             NSystem y = z; // Make a copy of the system, such that the system can be updated twice and independently. This is necessary to compute the error.
 
             integrator_function(z, h); // Update the system once with time step h
@@ -117,8 +137,6 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
             } else if (error < Delta_min) {
                 h *= 2; // If the error is too small, the timestep is doubled.
             } // If neither is true, the timestep remains fixed.
-        } else if (ADAPTIVE_RK45) {
-            RK45_step(z, h, 1e-5); // This updates both the system and the timestep using the RK45 method. 1e-5 is the error parameter.
         } else {
             integrator_function(z, h); // Using a fixed timestep, the system z is updated over a time h.
         }
@@ -134,12 +152,23 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
 
         // The following lines write the measure of temperature of the planet to the correct file.
         // This assumes that body 3 is a planet (of which the temperature is calculated), and that bodies 0,1, and 2 are suns.
-        // Only relevent for certain initial conditions. SHould be ignored.
+        // Only relevent for certain initial conditions.
         double temperature = 0;
         for (int body_number = 0; body_number < N-1; body_number++){
             temperature += 1/(z.positions()[body_number] - z.positions()[3]).norm2();
         }
-        outfile_distances << t << ' ' << pow(temperature,0.25) << '\n';
+        outfile_temp << t << ' ' << pow(temperature,0.25) << '\n';
+
+        if (number_of_iterations == 1) {
+            sun_mercury_start = z.positions()[1]-z.positions()[0]; // Overwrite the initial value (For the analysis of the perihelion precession of mercury)
+        }
+
+        // The following lines write the positions to the sun and their angles wrt sun_mercury_start to the correct file.
+        outfile_distance_planets << t << ' '; 
+        for (int body_number = 1; body_number < N; body_number++){
+            outfile_distance_planets << (z.positions()[body_number]-z.positions()[0]).norm() << ' ' << (z.positions()[body_number]-z.positions()[0]).angle(sun_mercury_start) << ' ';
+        }
+        outfile_distance_planets << std::endl;
 
         // Every 1000 iterations, the number of iterations, together with the current value of t and h are displayed. This serves as an indication of how far the simulation has progressed.
         if (number_of_iterations % 1000 == 0){
@@ -181,6 +210,13 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
     std::string outdir_energy = "energy/" + SystemName;
     fs::create_directories(outdir_energy);
 
+    // These two are only relevent for specific initial conditions and should be ignored for other.
+    std::string outdir_temp = "temperatures/" + SystemName;
+    fs::create_directories(outdir_temp);
+
+    std::string outdir_dist = "dist_mercury/" + SystemName;
+    fs::create_directories(outdir_dist);
+
     // start the execution
     int time_start = time(NULL);
 
@@ -204,15 +240,23 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
 
     std::ofstream outfile_energy(outdir_energy +"/" + filename + ".txt");
     outfile_energy << std::setprecision(16);
-    outfile_energy << t << ' ' << z.get_energy() << '\n';
+    outfile_energy << t << ' ' << z.get_energy() << '\n'; // output the total energy of the system
 
-    std::ofstream outfile_distances("temperatures/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
+    std::ofstream outfile_temp(outdir_temp + "/" + filename + ".txt"); // This is the file where a measure of temperature will be saved.
+
+    std::ofstream outfile_distance_planets(outdir_dist + "/" + filename + ".txt");
+    outfile_distance_planets << std::setprecision(8); // This is the file where the distances of all bodies to the first body in function of time will be saved. This is included for the analysis of the solar system 
 
     General_integrator integrator_function = General_integrator(integrator); // Get the integrator function.
 
     int number_of_iterations = 0; // The number of iterations
     int driver_evaluations = get_driver_evaluations(integrator); // The number of driver evaluations, to be used in the analysis of the accuracy vs cost plot
     std::cout << "Number of driver evaluations per time step is " << driver_evaluations << std::endl;
+
+    Vec sun_mercury_start = Vec(1, 0, 0); // For the analysis of the perihelion precession of mercury: 
+    //sun_mercury_start is the vector with respect to which the vectors connecting mercury and the sun (in function of time) will be calculated. 
+    // Using this vector, angles can be calculated, which will be necessary to calculate the angle for which the perihelion occurs.
+    // This line initializes this variable, but will later be overwritten. 
 
     while(t < tmax){
         t+= h; // Progress the time
@@ -251,7 +295,18 @@ void integrate_general (std::string in_cond, std::string integrator, double h, d
         for (int body_number = 0; body_number < N-1; body_number++){
             temperature += 1/(z.positions()[body_number] - z.positions()[3]).norm2();
         }
-        outfile_distances << t << ' ' << pow(temperature,0.25) << '\n';
+        outfile_temp << t << ' ' << pow(temperature,0.25) << '\n';
+        
+        if (number_of_iterations == 1) {
+            sun_mercury_start = z.positions()[1]-z.positions()[0]; // Overwrite the initial value (For the analysis of the perihelion precession of mercury)
+        }
+
+        // The following lines write the positions to the sun and their angles wrt sun_mercury_start to the correct file.
+        outfile_distance_planets << t << ' '; 
+        for (int body_number = 1; body_number < N; body_number++){
+            outfile_distance_planets << (z.positions()[body_number]-z.positions()[0]).norm() << ' ' << (z.positions()[body_number]-z.positions()[0]).angle(sun_mercury_start) << ' ';
+        }
+        outfile_distance_planets << std::endl;
 
         // Every 1000 iterations, the number of iterations, together with the current value of t and h are displayed. This serves as an indication of how far the simulation has progressed.
         if (number_of_iterations % 1000 == 0){
@@ -314,14 +369,14 @@ void loop_h_general (std::string in_cond, std::string integrator, double tmax, d
 
 int main(){
     std::string in_cond = "Burrau.txt"; // File with the initial conditions to be read from the `Initial_conditions` folder
-    std::string type_integ = "general"; // The type of integrator to be used. By default the `friend void` type integrators are used.
-    std::string integrator = "RK4"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
+    std::string type_integ = "friend"; // The type of integrator to be used. By default the `friend void` type integrators are used.
+    std::string integrator = "Forest Ruth"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
     double h = 0.001; // The (initial) timestep.
     double tmax = 70; // Total time considered in the simulation
+    bool ADAPTIVE_RK45 = false; // Whether or not to use RK45 embedded adaptive timestep. Only implemented in the `integrate` function.
     bool ADAPTIVE_TIME_STEP = true; // Whether or not to use an adaptive timestep
-    bool ADAPTIVE_RK45 = false; // Whether or not to use RK45 embedded adaptive timestep. If you want to use this, ADAPTIVE_TIME_STEP should be set to false. Only implemented in the `integrate` function.
     // The following should only be changed to loop over run the simulation for different timesteps.
-    bool h_loop = true;
+    bool h_loop = false;
     double hmax = 0.1; // the maximum timestep
     int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
 
