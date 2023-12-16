@@ -92,6 +92,25 @@ int step = 10;
 ```
 Only these need to be changed in the code to run other simulations. To loop over different timesteps ```h_loop``` should be set to true and ```hmax``` and ```step``` should be given.
 
+## Regularization
+
+The files **`main_2D.cpp`** and **`classes_regularization.cpp`** can be used to simulate 2D systems with regularization. By default, z = 0.
+
+The parameters to be used are the same as for **`main.cpp`**, with the exception of: 
+
+    - type_integ: this is always "function"
+    - ADAPTIVE_RK45: this is always false.
+    - h_loop: This is always false.
+    - transform_distance: this is an extra parameter that denotes below which distance 2 bodies are regularized.
+
+Disclaimers:
+    - The code is always 2-dimensional, with z = 0 and v_z = 0.
+    - The system loses energy upon each regularization. This means that the code is not fully correct.
+    - when transform_distance = 0.0, this is equivalent to  **`N_body_sim.cpp`** and works in 3D too.
+    - The trajectories and energies are saved in the folders **`traj_reg`** and **`energy_reg`** respectively.
+    - Since the number of bodies can change, the trajectory file does not work with **`plot_traj`**, which assumes a fixed number of bodies. Thus, alternatively, the files **`plot_motion.py`** and **`plot_energy.py`** should be used.
+
+
 ## Contents of the different folders
 * **`ani_traj`**: The animated trajectories for some chosen initial conditions. 
     * Naming convention used: ``SystemName_integrator_(with_traj_)(3D/projection).gif``
