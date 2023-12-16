@@ -46,17 +46,20 @@ int main(){
     double t = 0;
     double tmax;
 
+    // **** Parameters to be chosen - Start **** //
     h = 0.001; // The (initial) timestep to be used for integration
     tmax = 300; // The total time to be simulated
     integrator = "PEFRL"; // the integrator used
     in_cond = "two-body-plane.txt"; // The initial conditions
     int i = 0; // the number of iterations
+    double transform_distance = 0.5; // The distance below which the system is regularized
 
     double Delta_max = pow(10, -10); // Parameter for when ADAPTIVE_TIME_STEP = true
     double Delta_min = pow(10, -15); // Parameter for when ADAPTIVE_TIME_STEP = true
+    // **** Parameters to be chosen - End **** //
+
 
     bool regularized = false; // whether or not the system should be regularized
-    double transform_distance = 0.5; // The distance below which the system is regularized
     double dtau = h/transform_distance; // dtau of the regularized coordinates
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4);
@@ -89,7 +92,7 @@ int main(){
 
     std::ofstream outfile_energy("energy_reg/" + filename + ".txt");
     outfile_energy << std::setprecision(8);
-    outfile_energy << z.nsystem().get_energy() << '\n';
+    outfile_energy << 0 << ' ' << z.nsystem().get_energy() << '\n';
 
     Vec u, r;
     std::vector<int> should_be_regularized; // This is a vector of 3 elements. The first element denotes whether or not the system should be regularized. If this is 1, the 2 other values indicate which bodies should be regularized.
@@ -138,7 +141,7 @@ int main(){
             }
             outfile << '\n';
             
-            outfile_energy << z.nsystem().get_energy() << '\n';
+            outfile_energy << t << ' ' << z.nsystem().get_energy() << '\n';
         } 
         
         // Every 1000 iterations, the number of iterations, together with the current value of t and h are displayed. This serves as an indication of how far the simulation has progressed.
