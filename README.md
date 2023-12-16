@@ -9,8 +9,7 @@ This is the final code for the N-body simulation. The units used in the simulati
 * mass: $[M_{\odot}]$
 * G = 39.473107 $[AU]^3 M_{\odot}^{-1} [yr]^{-2}$
 
-The trajectories and energies for are stored in folders with the names of the corresponding systems in the **`traj`** en **`energy`** folders respectively. The naming convention used in each subfolder is:
-*SystemName_integrator_tmax_h(_adaptive).txt*. The format of the files is explained in the next section. The initial conditions are read from the **`Initial_conditions`** folder. The filename should not contain any underscores as they are used as separators. The initial condition files have the given format:
+The initial conditions are read from the **`Initial_conditions`** folder. The filename should not contain any underscores as they are used as separators. The initial condition files have the given format:
 
 $$
 \begin{gather*}
@@ -18,6 +17,18 @@ m_1 \quad x_1 \quad y_1 \quad z_1 \quad v_1 \quad v_1 \quad v_1 \\
 m_2 \quad x_2 \quad y_2 \quad z_2 \quad v_2 \quad v_2 \quad v_2\\
 \vdots\\
 m_n \quad x_n \quad y_n \quad z_n \quad v_n \quad v_n \quad v_n
+\end{gather*}
+$$
+
+The trajectories and energies for are stored in folders with the names of the corresponding systems in the **`traj`** en **`energy`** folders respectively. The naming convention used in each subfolder is:
+``SystemName_integrator_tmax_h(_adaptive).txt``. The energy files contain two columns with the time and energy. The format of the trajectory files is:
+
+$$
+\begin{gather*}
+t_0 \quad x_{1, t_0} \quad y_{1, t_0} \quad z_{1, t_0} \quad x_{2, t_0} \quad y_{2, t_0} \quad z_{2, t_0} \quad \cdots \quad x_{n, t_0} \quad y_{n, t_0} \quad z_{n, t_0}\\
+t_1 \quad x_{1, t_1} \quad y_{1, t_1} \quad z_{1, t_1} \quad x_{2, t_1} \quad y_{2, t_1} \quad z_{2, t_1} \quad \cdots \quad x_{n, t_1} \quad y_{n, t_1} \quad z_{n, t_1}\\
+\vdots \\
+t_{m} \quad x_{1, t_{m}} \quad y_{1, t_{m}} \quad z_{1, t_{m}} \quad x_{2, t_{m}} \quad y_{2, t_{m}} \quad z_{2, t_{m}} \quad \cdots \quad x_{n, t_{m}} \quad y_{n, t_{m}} \quad z_{n, t_{m}}\\
 \end{gather*}
 $$
 
