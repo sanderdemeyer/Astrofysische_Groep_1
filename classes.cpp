@@ -425,15 +425,17 @@ class General_integrator{
         std::vector<double> a_table; // Bulk of the Butcher tableau, which claculates the different values of k1, k2, etc...
         std::vector<double> b_table; // Last line of the Butcher tableau, which calculates the updated value of the system based on the values of k1, k2, etc...
     public:
-        General_integrator(){}
+        General_integrator(){} // Default constructor
 
         General_integrator(int _length, std::vector<double> _a_table, std::vector<double> _b_table) {
+            // Constructor using a Butcher Tableau
             length = _length;
             a_table = _a_table;
             b_table = _b_table;
         }
 
         General_integrator(std::string integr) {
+            // Constructor using a string, which is connected with a Butcher Tableau.
             if (integr.compare("RK4") == 0) {
                 a_table = {0.0,0.0,0.0,0.0 , 0.5,0.0,0.0,0.0 , 0.0,0.5,0.0,0.0 , 0.0,0.0,1.0,0.0};
                 b_table = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
@@ -479,24 +481,29 @@ class General_integrator{
                 b_table = {7.0/90,0.0,32.0/90,12.0/90,32.0/90,7.0/90};
                 length = 6;
             } else if (integr.compare("IRK5_wrong") == 0) {
+                // Implementation of IRK5 using https://www.ajbasweb.com/old/ajbas/2012/March/97-105.pdf
+                // This implementation does not give correct results. Using this intergrator is highly discouraged.
                 a_table = {0.0,0.0,0.0,0.0,0.0 , 0.25,0.0,0.0,0.0,0.0,
                             -0.7272,0.7322,0.0,0.0,0.0 , 0.5734,-2.2485,3.344,0.0,0.0,
                             0.1750,0.0121,0.0559,0.5517,0.0};
                 b_table = {1.0222, -0.0961, 0.0295, -0.1, 0.6444};
-                length = 5; // wrong: https://www.ajbasweb.com/old/ajbas/2012/March/97-105.pdf
+                length = 5; // wrong: 
             } else if (integr.compare("IRK5_wrong2") == 0) {
+                // Implementation of IRK5 using https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/99611d53-5ab6-45bc-8743-1e1080025f83/36a3fccd-1914-485e-bb6d-1d30fcb7e387/images/screenshot.png
+                // This implementation does not give correct results. Using this intergrator is highly discouraged.
                 a_table = {0.0,0.0,0.0,0.0,0.0 , 1.0/4,0.0,0.0,0.0,0.0,
                             -1.0/125,259.0/1000,0.0,0.0,0.0 , 0.386,-0.531,0.644,0.0,0.0,
                             0.206,-0.9,0.892,0.552,0.0};
                 b_table = {46.0/45, 1.0/25, -0.107, -0.1, 29.0/45};
-                length = 5; // wrong
+                length = 5;
             } else {
                 assert((0 == 1) && ("This is not implemented with a Butcher Tableau"));
             }
-        } // https://www.mathworks.com/matlabcentral/mlc-downloads/downloads/99611d53-5ab6-45bc-8743-1e1080025f83/36a3fccd-1914-485e-bb6d-1d30fcb7e387/images/screenshot.png
+        }
 
     void operator()(NSystem& y_n, double h) {
-        NSystem kis [length];
+        // This overloads the operator()-function, such that the same syntax as the function-based integrators can be used.
+        NSystem kis [length]; // This is an array of the values of k1, k2, etc...
         for (int i = 0; i < length; i++) {
             NSystem argument = y_n;
             for (int j = 0; j < i; j++) {
@@ -505,13 +512,14 @@ class General_integrator{
             kis[i] = argument.evaluate_g();
         }
         for (int i = 0; i < length; i++){
-            y_n += h*b_table[i]*kis[i];
+            y_n += h*b_table[i]*kis[i]; // The updated value the system is calculated based on the values of k1, k2, etc...
         }
     }
 };
 
 
 int get_driver_evaluations(std::string integrator) {
+    // For both function-based integrators as general integrators, the number of driver evaulations per timestep is returned.
     std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
     std::vector<std::string> driver_evaluations_2 = {"RK2", "Heun", "Ralston", "Velocity Verlet"};
     std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3", "Forest Ruth", "Yoshida_4", "Wray3", "SSPRK3"};

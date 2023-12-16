@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <string.h>
 #include <cmath>
 #include <fstream>
@@ -130,7 +131,9 @@ Vec2 operator*(double s, Vec2 a) { return a *= s; }
 Vec2 operator+(Vec2 a, Vec2 b) { return a += b; }
 Vec2 operator-(Vec2 a, Vec2 b) { return a -= b; }
 
+
 Vec2 transform_vector_forward_2D(Vec r){
+    // Transforms from unregularized to regularized coordinates
     double expr;
     expr = r.x() + r.norm();
     
@@ -140,19 +143,21 @@ Vec2 transform_vector_forward_2D(Vec r){
 }
 
 Vec transform_vector_backward_2D(Vec2 r){
+    // Transforms from regularized to unregularized coordinates
     double R1 = pow(r.x(), 2) - pow(r.y(), 2);
     double R2 = 2*r.x()*r.y();
     return Vec(R1, R2, 0);
 }
 
 class Regularized_coo {
-
+// Defines the class dealing with the regularized coordinates
 private:
     Vec4 _u;
     Vec4 _v;
     double _mu;
 
 public: 
+    // Constructors
     Regularized_coo(Vec4 u, Vec4 v, double mu){
     _u = u;
     _v = v;
@@ -164,13 +169,16 @@ public:
         _mu = 0;
     }
 
+    // Friend declarations necessary for integrators
     friend double Leapfrog_reg(Regularized_coo& y_old, double h);
     friend double RK4_step_reg(Regularized_coo& y_n, double h);
 
+    // Getter functions
     Vec4 u() const { return _u; }
     Vec4 v() const { return _v; }
     double mu() const { return _mu; }
 
+    // Some basic arithmetic
     Regularized_coo& operator*=(double s) {
         _u *= s;
         _v *= s;
@@ -193,6 +201,7 @@ public:
         return _u.norm2();
     }
 
+    // Evaluate the driver function
     Regularized_coo evaluate_g_reg(){
         double E = (2*_v.norm2() - _mu)/(_u.norm2());
         Vec4 u_prime = _v;
@@ -208,7 +217,7 @@ Regularized_coo operator/(Regularized_coo a, double s) { return a /= s; }
 Regularized_coo operator+(Regularized_coo a, Regularized_coo b) { return a += b; }
 
 class Regularized_coo_2D {
-
+// Does the same as the above class, but in 2D
 private:
     Vec2 _u;
     Vec2 _v;
@@ -271,7 +280,10 @@ Regularized_coo_2D operator*(double s, Regularized_coo_2D a) { return a *= s; }
 Regularized_coo_2D operator/(Regularized_coo_2D a, double s) { return a /= s; }
 Regularized_coo_2D operator+(Regularized_coo_2D a, Regularized_coo_2D b) { return a += b; }
 
+
 Vec4 rotate_vec4(Vec4 u, double theta){
+    // ***** LEGACY ***** //
+    // Rotate a Vec4 in the plane of quaternion k.
     double comp1 = u.x()*cos(theta);
     double comp2 = u.y()*cos(theta);
     double comp3 = u.z()*cos(theta);
@@ -286,6 +298,7 @@ Vec4 rotate_vec4(Vec4 u, double theta){
 }
 
 Vec4 transform_vector_forward(Vec r){
+    // ***** LEGACY ***** //
     double expr;
     expr = r.x() + r.norm();
     
@@ -294,15 +307,12 @@ Vec4 transform_vector_forward(Vec r){
     double u3 = r.z()/(2*u1);
     // double u2 = r.y()/sqrt(2*expr);
     // double u3 = r.z()/sqrt(2*expr);
-    std::cout << "Teller of transform is " << expr << std::endl;
-    std::cout << "u1 = " << u1 << std::endl;
-    std::cout << "u2 = " << u2 << std::endl;
-    std::cout << "u3 = " << u3 << std::endl;
     return Vec4(u1, u2, u3, 0);
 }
 
 
 Regularized_coo regularize_together(Vec u_old, Vec v_old, double Energy, double reduced_mass){
+    // ***** LEGACY ***** //
     Vec4 u_new = transform_vector_forward(u_old);
     Vec4 v_new = transform_vector_forward(v_old);
 
@@ -325,18 +335,16 @@ Regularized_coo regularize_together(Vec u_old, Vec v_old, double Energy, double 
                 theta2_best = theta2;
                 check = pow(check1,2)+pow(check2,2);
             }
-            // std::cout << "errors are " << check1 << ", and " << check2 << std::endl;
         }
     }
-    std::cout << "best thetas are " << theta1_best << ", and " << theta2_best << "with error " << check << std::endl;
     return Regularized_coo(rotate_vec4(u_new, 0), rotate_vec4(v_new, 0), reduced_mass);
     return Regularized_coo(rotate_vec4(u_new, theta1_best), rotate_vec4(v_new, theta2_best), reduced_mass);
 }
 
 
 Regularized_coo_2D regularize_together_2D(Vec u_old, Vec v_old, double reduced_mass){
+    // Transforms u and v to regularized coordinates
     Vec2 u_new = transform_vector_forward_2D(u_old);
-    std::cout << "usquared is " << u_new.norm2() << std::endl;
     double v1_new = (v_old.x()*u_new.x() + v_old.y()*u_new.y())/(2*u_new.norm2());//*u_new.norm2();
     double v2_new = (v_old.y()*u_new.x() - v_old.x()*u_new.y())/(2*u_new.norm2());//*u_new.norm2();
 
@@ -344,21 +352,17 @@ Regularized_coo_2D regularize_together_2D(Vec u_old, Vec v_old, double reduced_m
 }
 
 Regularized_coo_2D regularize_together_2D_backward(Regularized_coo_2D reg_coo){
+    // Performs the backward calculation as the function above
     Vec R_new = transform_vector_backward_2D(reg_coo.u());
-    std::cout << "usquared is " << reg_coo.u().norm2() << std::endl;
     double V1 = (2*reg_coo.u().x()*reg_coo.v().x() - 2*reg_coo.u().y()*reg_coo.v().y());///reg_coo.u().norm2();
     double V2 = (2*reg_coo.v().x()*reg_coo.u().y() + 2*reg_coo.u().x()*reg_coo.v().y());///reg_coo.u().norm2();
 
     return Regularized_coo_2D(Vec2(R_new.x(), R_new.y()), Vec2(V1, V2), reg_coo.mu());
 }
 
-
-
+// Integrators for the regularized coordinates
 double Leapfrog_reg(Regularized_coo& y_old, double dtau){
     double E = (2*y_old._v.norm2() - y_old._mu)/y_old._u.norm2();
-    std::cout << "Energy is " << E << std::endl;
-    std::cout << "teller is " << (2*y_old._v.norm2() - y_old._mu) << std::endl;
-    std::cout << "noemer is " << y_old._u.norm2() << std::endl;
     y_old._u = y_old._u + y_old._v*dtau;
     y_old._v = y_old._v + (0.5*E*y_old._u);
     return y_old._u.norm2();
@@ -396,6 +400,7 @@ double Yoshida_4_step_reg_2D(Regularized_coo_2D& y_n, double h){
 
 
 Vec transform_vector_backward(Vec4 u){
+    // ***** LEGACY ***** //
     double r1 = pow(u._x, 2) - pow(u._y, 2) - pow(u._z, 2) + pow(u._a, 2);
     double r2 = 2*(u._x*u._y - u._z*u._a);
     double r3 = 2*(u._x*u._z + u._y*u._a);
@@ -406,7 +411,8 @@ Vec transform_vector_backward(Vec4 u){
 
 
 class NSystem_reg {
-
+// ***** LEGACY ***** //
+// Defines a class with an NSystem for the bodies in unregularized coordiantes, together with (possibly) 2 regularized bodies.
 private:
     NSystem _nsystem;
     bool _regularized;
@@ -425,11 +431,9 @@ public:
     //friend void Leapfrog_reg(NSystem_reg& y_n, double dtau);
 
     bool check_separation(double transform_distance){
-        // only works for two bodies for the moment
         if (_regularized){
             return (_reg_coo.u_squared() < transform_distance);
         } else {
-            //std::cout << "distance is " << ((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() << std::endl;
             return (((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() < transform_distance);
         }
     }
@@ -509,8 +513,6 @@ public:
         if (_regularized){
             double u_squared = RK4_step_reg(_reg_coo, dtau);
             Yoshida_4_friend(_nsystem, dtau*u_squared);
-            //Yoshida_4_friend(_nsystem, dtau);
-            std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
         } else {
             Yoshida_4_friend(_nsystem, dtau);
         }
@@ -519,7 +521,8 @@ public:
 
 
 class NSystem_reg_2D {
-
+// Defines a class with an NSystem for the bodies in unregularized coordiantes, together with (possibly) 2 regularized bodies.
+// This is implemented in 2D. 3D does not work.
 private:
     NSystem _nsystem;
     bool _regularized;
@@ -538,7 +541,7 @@ public:
     //friend void Leapfrog_reg(NSystem_reg& y_n, double dtau);
 
     std::vector<int> check_separation(double transform_distance){
-        // only works for two bodies for the moment
+        // Check whether the system should be regularized based on the distances between the bodies.
         if (_regularized){
             if (_reg_coo.u_squared() < transform_distance) {
                 std::vector<int> return_values = {1, 0, 0};
@@ -556,13 +559,13 @@ public:
                     }
                 }
             }
-            //std::cout << "distance is " << ((_nsystem.positions()[0] - _nsystem.positions()[1])).norm() << std::endl;
             std::vector<int> return_values = {0, 0, 0};
             return return_values;
         }
     }
 
     NSystem_reg_2D transform_forward(int body1, int body2){
+        // Transforms the system to regularized coordinates for bodies 1 and 2
         if(body1 > body2){
             int temp = body2;
             body2 = body1;
@@ -597,15 +600,15 @@ public:
         vel_new.push_back(com_vel);
         masses_new.push_back(joint_mass);
 
-        //Regularized_coo_2D reg_coo = Regularized_coo_2D(transform_vector_forward_2D(relative_pos), transform_vector_forward_2D(relative_vel), reduced_mass);
         Regularized_coo_2D reg_coo = regularize_together_2D(relative_pos, relative_vel, reduced_mass);
 
         return NSystem_reg_2D(NSystem(pos_new, vel_new, masses_new), true, reg_coo, masses_old);
-        //return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(transform_vector_forward(relative_pos), transform_vector_forward(relative_vel), reduced_mass), masses_old);
     }
     
     
     NSystem_reg_2D transform_backward(){
+        // Performs the backward calculation as the above function.
+
         std::vector<Vec> pos_new = _nsystem.positions();
         std::vector<Vec> vel_new = _nsystem.velocities();
         std::vector<double> masses_new = _nsystem.masses();
@@ -615,9 +618,6 @@ public:
         Regularized_coo_2D backwards_transformed = regularize_together_2D_backward(_reg_coo);
         Vec R_relative = Vec(backwards_transformed.u().x(), backwards_transformed.u().y(), 0);
         Vec V_relative = Vec(backwards_transformed.v().x(), backwards_transformed.v().y(), 0);
-
-        //Vec R_relative = transform_vector_backward_2D(_reg_coo.u());
-        //Vec V_relative = transform_vector_backward_2D(_reg_coo.v());
 
         double sum_masses = _initial_masses[0] + _initial_masses[1];
         Vec R1 = R_com - _initial_masses[1]*R_relative/sum_masses;
@@ -639,27 +639,20 @@ public:
     }
 
     void timestep(double h, double dtau){
+        // Performs a single timestep
         if (_regularized){
             double u_squared = RK4_step_reg_2D(_reg_coo, dtau);
-            // double u_squared = Yoshida_4_step_reg_2D(_reg_coo, dtau);
             
             Yoshida_4_friend(_nsystem, dtau*u_squared);
-            //Yoshida_4_friend(_nsystem, dtau);
-            // std::cout << "dtau = " << dtau << "and dt = " << u_squared*dtau << std::endl;
         } else {
             Yoshida_4_friend(_nsystem, h);
         }
     }
 };
 
-void Leapfrog_regularized_friend(NSystem& y_n, double dtau){
-    double E_first = y_n.get_energy_regularized();
-    y_n.positions() = y_n.positions() + dtau*y_n.velocities();
-    double E_second = y_n.get_energy_regularized();
-    y_n.velocities() = y_n.velocities() + (dtau/4)*(E_first+E_second)*y_n.positions();
-}
 
 double compare_solutions(NSystem_reg_2D a, NSystem_reg_2D b){
+    // Compare two solutions a and b.
     double error = 0;
     for (int i = 0; i < a.nsystem().positions().size(); i++){
         error += (a.nsystem().positions()[i] - b.nsystem().positions()[i]).norm2();
