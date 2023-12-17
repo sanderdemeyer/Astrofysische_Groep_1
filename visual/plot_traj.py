@@ -359,8 +359,8 @@ def plot(file, dim, title, lim=None,project=False, name='trajectories', label= '
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-trajectory = 'two-body/two-body_PEFRL_100.000000_0.001000.txt'
-type_plot = 'both'
+trajectory = 'two-body-new/two-body-new_PEFRL_100.000000_0.001000.txt'
+type_plot = 'plot'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection

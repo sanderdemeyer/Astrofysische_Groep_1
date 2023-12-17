@@ -288,6 +288,6 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = "two-body-plane.txt";
+    std::string in_cond = ".txt";
     energy(in_cond);
 }
