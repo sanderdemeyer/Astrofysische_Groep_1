@@ -288,6 +288,6 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = "criss-cross.txt";
+    std::string in_cond = "Solar-System-New.txt";
     energy(in_cond);
 }
