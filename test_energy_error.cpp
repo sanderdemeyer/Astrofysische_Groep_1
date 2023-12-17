@@ -288,6 +288,6 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = "rings.txt";
+    std::string in_cond = "lemniscate.txt";
     energy(in_cond);
 }
