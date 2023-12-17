@@ -288,6 +288,6 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = "Earth-orbit-w-moon.txt";
+    std::string in_cond = "Burrau.txt";
     energy(in_cond);
 }
