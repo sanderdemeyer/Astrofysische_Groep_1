@@ -317,7 +317,6 @@ Regularized_coo regularize_together(Vec u_old, Vec v_old, double Energy, double 
     Vec4 v_new = transform_vector_forward(v_old);
 
     Vec4 u, v;
-    double check1, check2;
     double check = 10000;
     double theta1_best = 0;
     double theta2_best = 0;
@@ -476,7 +475,6 @@ public:
         Regularized_coo reg_coo_rotated = regularize_together(relative_pos, relative_vel, _nsystem.get_energy(), reduced_mass);
 
         return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, reg_coo_rotated, masses_old);
-        //return NSystem_reg(NSystem(pos_new, vel_new, masses_new), true, Regularized_coo(transform_vector_forward(relative_pos), transform_vector_forward(relative_vel), reduced_mass), masses_old);
     }
     
     
@@ -540,26 +538,26 @@ public:
 
     //friend void Leapfrog_reg(NSystem_reg& y_n, double dtau);
 
-    std::vector<int> check_separation(double transform_distance){
+    std::vector<size_t> check_separation(double transform_distance){
         // Check whether the system should be regularized based on the distances between the bodies.
         if (_regularized){
             if (_reg_coo.u_squared() < transform_distance) {
-                std::vector<int> return_values = {1, 0, 0};
+                std::vector<size_t> return_values = {1, 0, 0};
                 return return_values;
             } else {
-                std::vector<int> return_values = {0, 0, 0};
+                std::vector<size_t> return_values = {0, 0, 0};
                 return return_values;
             }
         } else {
-            for (int body_1 = 0; body_1 < _nsystem.positions().size(); body_1++) {
-                for (int body_2 = 0; body_2 < _nsystem.positions().size(); body_2++) {
+            for (size_t body_1 = 0; body_1 < _nsystem.positions().size(); body_1++) {
+                for (size_t body_2 = 0; body_2 < _nsystem.positions().size(); body_2++) {
                     if ((body_1 != body_2) && (((_nsystem.positions()[body_1] - _nsystem.positions()[body_2])).norm() < transform_distance)) {
-                        std::vector<int> return_values = {1, body_1, body_2};
+                        std::vector<size_t> return_values = {1, body_1, body_2};
                         return return_values;
                     }
                 }
             }
-            std::vector<int> return_values = {0, 0, 0};
+            std::vector<size_t> return_values = {0, 0, 0};
             return return_values;
         }
     }
@@ -654,7 +652,7 @@ public:
 double compare_solutions(NSystem_reg_2D a, NSystem_reg_2D b){
     // Compare two solutions a and b.
     double error = 0;
-    for (int i = 0; i < a.nsystem().positions().size(); i++){
+    for (size_t i = 0; i < a.nsystem().positions().size(); i++){
         error += (a.nsystem().positions()[i] - b.nsystem().positions()[i]).norm2();
         error += (a.nsystem().velocities()[i] - b.nsystem().velocities()[i]).norm2();
     }

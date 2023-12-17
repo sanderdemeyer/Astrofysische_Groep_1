@@ -52,12 +52,12 @@ int main(){
     tmax = 300; // The total time to be simulated
     integrator = "PEFRL"; // the integrator used
     in_cond = "two-body-plane.txt"; // The initial conditions
-    ADAPTIVE_TIME_STEP = false; // whether or not to use dapative timestep
+    ADAPTIVE_TIME_STEP = true; // whether or not to use dapative timestep
     int i = 0; // the number of iterations
-    double transform_distance = 0.5; // The distance below which the system is regularized
+    double transform_distance = 0.0; // The distance below which the system is regularized
 
-    double Delta_max = pow(10, -10); // Parameter for when ADAPTIVE_TIME_STEP = true
-    double Delta_min = pow(10, -15); // Parameter for when ADAPTIVE_TIME_STEP = true
+    double Delta_max = pow(10, -11); // Parameter for when ADAPTIVE_TIME_STEP = true
+    double Delta_min = pow(10, -12); // Parameter for when ADAPTIVE_TIME_STEP = true
     // **** Parameters to be chosen - End **** //
 
 
@@ -99,7 +99,7 @@ int main(){
     outfile_energy << 0 << ' ' << z.nsystem().get_energy() << '\n';
 
     Vec u, r;
-    std::vector<int> should_be_regularized; // This is a vector of 3 elements. The first element denotes whether or not the system should be regularized. If this is 1, the 2 other values indicate which bodies should be regularized.
+    std::vector<size_t> should_be_regularized; // This is a vector of 3 elements. The first element denotes whether or not the system should be regularized. If this is 1, the 2 other values indicate which bodies should be regularized.
 
     while(t < tmax){
         t += h;

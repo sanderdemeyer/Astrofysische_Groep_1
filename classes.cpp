@@ -522,7 +522,7 @@ int get_driver_evaluations(std::string integrator) {
     // For both function-based integrators as general integrators, the number of driver evaulations per timestep is returned.
     std::vector<std::string> driver_evaluations_1 = {"Forward Euler", "Position Verlet", "Leapfrog"};
     std::vector<std::string> driver_evaluations_2 = {"RK2", "Heun", "Ralston", "Velocity Verlet"};
-    std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3", "Forest Ruth", "Yoshida_4", "Wray3", "SSPRK3"};
+    std::vector<std::string> driver_evaluations_3 = {"Heun3", "Ralston3", "RK3", "Forest Ruth", "Yoshida 4", "Wray3", "SSPRK3"};
     std::vector<std::string> driver_evaluations_4 = {"RK4", "PEFRL", "3_over_8", "Ralston4"};
     std::vector<std::string> driver_evaluations_5 = {"IRK5"};
     std::vector<std::string> driver_evaluations_6 = {"RK5"};
