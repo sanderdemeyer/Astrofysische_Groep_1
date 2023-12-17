@@ -56,7 +56,7 @@ if type_plot == 'both':
 Integrators = ["Forward Euler", "RK2", "Heun", "Heun3", "Ralston", "Ralston3", "RK3", "RK4", "Forest Ruth", "PEFRL", "Velocity Verlet", "Position Verlet", "Leapfrog", "Yoshida 4"]
 H = [0.1, 0.01, 0.001]
 
-system = "ellipses"
+system = "criss-cross"
 
 if not os.path.exists("plot_energy/{}".format(system)):
     os.mkdir("plot_energy/{}".format(system))

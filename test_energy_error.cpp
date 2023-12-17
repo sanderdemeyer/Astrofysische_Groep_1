@@ -288,6 +288,6 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = "ellipses.txt";
+    std::string in_cond = "criss-cross.txt";
     energy(in_cond);
 }
