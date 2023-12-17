@@ -266,7 +266,7 @@ void energy (std::string in_cond){
     for (auto const& integ : integrators) {
         std::string integrator = integ; // he type of integrator to be used. For each type, available integrators are listed in the README file.
         double h = 0.001; // The (initial) timestep.
-        double tmax = 100; // Total time considered in the simulation
+        double tmax = 50; // Total time considered in the simulation
         double hmax = 0.1; // the maximum timestep
         int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
 
@@ -279,7 +279,7 @@ void energy_general (std::string in_cond){
     for (auto const& integ : integrators) {
         std::string integrator = integ; // he type of integrator to be used. For each type, available integrators are listed in the README file.
         double h = 0.001; // The (initial) timestep.
-        double tmax = 100; // Total time considered in the simulation
+        double tmax = 50; // Total time considered in the simulation
         double hmax = 0.1; // the maximum timestep
         int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
 
@@ -288,6 +288,6 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = ".txt";
+    std::string in_cond = "4-body-star.txt";
     energy(in_cond);
 }
