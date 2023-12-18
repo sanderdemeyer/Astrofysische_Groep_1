@@ -359,14 +359,14 @@ def plot(file, dim, title, lim=None,project=False, name='trajectories', label= '
 # Here the parameters can be changed
 # ----------------------------------------------------------------------------
 ## file to animate/plot
-trajectory = 'two-body-new/two-body-new_PEFRL_100.000000_0.001000.txt'
+trajectory = 'rings/rings_PEFRL_50.000000_0.001000.txt'
 type_plot = 'plot'
 ## dimension of the file
 dim = 3
 ## whether or not to plot 2D projection
 project = True
 ## labels of the bodies. Options are: 'auto' which does automatic numbering, None which does not add labels, and a list ['body1', 'body2', ...] with the labels
-label = None
+label = 'auto'
 ## limit of the axis, default is None or thus automatic
 lim = None
 #lim = [[-10,10], [-10,10], [-10,10]]
