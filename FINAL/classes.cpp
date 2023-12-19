@@ -259,41 +259,41 @@ void RK2_step(NSystem& y_n, double h){
 
 void Heun(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
-    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k2 = (y_n + k1).evaluate_g()*h;
     y_n = y_n + k1/2 + k2/2;
 }
 
 void Heun3(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
-    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
-    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k2 = (y_n + k1*(1.0/3)).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*(2.0/3)).evaluate_g()*h;
     y_n = y_n + k1/4 + 3*k3/4;
 }
 
 void Ralston(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
-    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
+    NSystem k2 = (y_n + k1*(2.0/3)).evaluate_g()*h;
     y_n = y_n + k1/4 + 3*k2/4;
 }
 
 void Ralston3(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
     NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
-    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n + k2*0.75).evaluate_g()*h;
     y_n = y_n + 2*k1/9 + k2/3 + 4*k3/9;
 }
 
 void RK3_step(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
     NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
-    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k3 = (y_n - k1 + k2*2).evaluate_g()*h;
     y_n = y_n + k1/6 + 2*k2/3 + k3/6;
 }
 
 void RK4_step(NSystem& y_n, double h){
     NSystem k1 = y_n.evaluate_g() * h;
-    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h;
-    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h;
+    NSystem k2 = (y_n + k1*0.5).evaluate_g()*h/2;
+    NSystem k3 = (y_n + k2*0.5).evaluate_g()*h/2;
     NSystem k4 = (y_n + k3).evaluate_g()*h;
     y_n = y_n + k1/6 + k2/3 + k3/3 + k4/6;
 }
