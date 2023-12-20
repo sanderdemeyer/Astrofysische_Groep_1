@@ -347,14 +347,14 @@ void loop_h_general (std::string in_cond, std::string integrator, double tmax, d
 int main(){
     std::string in_cond = "rings.txt"; // File with the initial conditions to be read from the `Initial_conditions` folder
     std::string type_integ = "friend"; // The type of integrator to be used. By default the `friend void` type integrators are used.
-    std::string integrator = "PEFRL"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
-    double h = 0.001; // The (initial) timestep.
+    std::string integrator = "RK4"; // he type of integrator to be used. For each type, available integrators are listed in the README file.
+    double h = 0.0001; // The (initial) timestep.
     double tmax = 50; // Total time considered in the simulation
     bool ADAPTIVE_RK45 = false; // Whether or not to use RK45 embedded adaptive timestep. Only implemented in the `integrate` function.
     bool ADAPTIVE_TIME_STEP = false; // Whether or not to use an adaptive timestep
     // The following should only be changed to loop over run the simulation for different timesteps.
-    bool h_loop = false;
-    double hmax = 0.1; // the maximum timestep
+    bool h_loop = true;
+    double hmax = 0.01; // the maximum timestep
     int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
 
     if (h_loop){

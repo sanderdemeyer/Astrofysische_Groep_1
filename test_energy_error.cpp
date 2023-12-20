@@ -147,8 +147,8 @@ void integrate (std::string in_cond, std::string integrator, double h, double tm
 void integrate_general (std::string in_cond, std::string integrator, double h, double tmax, bool ADAPTIVE_TIME_STEP){
     double t = 0; // Starting time
 
-    double Delta_max = pow(10, -10); // Parameter for when ADAPTIVE_TIME_STEP = true
-    double Delta_min = pow(10, -11); // Parameter for when ADAPTIVE_TIME_STEP = true
+    double Delta_max = pow(10, -9); // Parameter for when ADAPTIVE_TIME_STEP = true
+    double Delta_min = pow(10, -12); // Parameter for when ADAPTIVE_TIME_STEP = true
 
     std::string SystemName = in_cond.substr(0, in_cond.size()-4); // Systemname based on initial conditions
 
@@ -264,13 +264,22 @@ void loop_h_general (std::string in_cond, std::string integrator, double tmax, d
 void energy (std::string in_cond){
     std::list <std::string> integrators = {"Forward Euler", "RK2", "Heun", "Heun3", "Ralston", "Ralston3", "RK3" , "RK4", "Forest Ruth", "PEFRL", "Velocity Verlet", "Position Verlet", "Leapfrog", "Yoshida 4"};
     for (auto const& integ : integrators) {
+        double h = 0.0001; // The (initial) timestep.
+        double tmax = 50; // Total time considered in the simulation
+        double hmax = 0.01; // the maximum timestep
+        int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
+
+        loop_h(in_cond, integ, tmax, h, hmax, step);
+    }
+}
+
+void energy_adaptive (std::string in_cond){
+    std::list <std::string> integrators = {"Forward Euler", "RK2", "Heun", "Heun3", "Ralston", "Ralston3", "RK3" , "RK4", "Forest Ruth", "PEFRL", "Velocity Verlet", "Position Verlet", "Leapfrog", "Yoshida 4"};
+    for (auto const& integ : integrators) {
         std::string integrator = integ; // he type of integrator to be used. For each type, available integrators are listed in the README file.
         double h = 0.001; // The (initial) timestep.
         double tmax = 50; // Total time considered in the simulation
-        double hmax = 0.1; // the maximum timestep
-        int step = 10; // the factor by which to loop from `h` to `hmax`. Should be greater than 1.
-
-        loop_h(in_cond, integrator, tmax, h, hmax, step);
+        integrate(in_cond, integ, h, tmax, true, false);
     }
 }
 
@@ -288,6 +297,7 @@ void energy_general (std::string in_cond){
 }
 
 int main(){
-    std::string in_cond = "rings.txt";
+    std::string in_cond = "binary.txt";
     energy(in_cond);
+    //energy_adaptive(in_cond);
 }
